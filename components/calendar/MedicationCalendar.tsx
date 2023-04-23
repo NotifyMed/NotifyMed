@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { MonthlyNav } from "./MonthlyNav";
-
 import { format, startOfMonth } from "date-fns";
+import { BsPencil } from "react-icons/bs";
+
+import { MonthlyNav } from "./MonthlyNav";
+import { MedicationFormDialog } from "../medication/MedicationFormDialog";
 
 import {
   MonthlyBody,
@@ -18,6 +20,10 @@ export type Medication = {
   notificationsEnabled?: string;
 };
 
+interface MedicationInfoProps extends Medication {
+  onEdit: (medication: Medication) => void;
+}
+
 function MedicationInfo({
   name,
   date,
@@ -25,8 +31,25 @@ function MedicationInfo({
   windowStart,
   windowEnd,
   notificationsEnabled,
-}: Medication) {
+  onEdit,
+}: MedicationInfoProps) {
   const formattedTime = format(new Date(`01/01/2000 ${time}`), "h:mma");
+
+  const [isEditing, setIsEditing] = useState(false);
+
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleEditClose = () => {
+    setIsEditing(false);
+  };
+
+  const handleEditSubmit = (medication: Medication) => {
+    console.log("Updating medication list with edited medication:", medication);
+    onEdit(medication);
+    setIsEditing(false);
+  };
 
   return (
     <>
@@ -34,6 +57,7 @@ function MedicationInfo({
         <div className="flex justify-between">
           <p>{name}</p>
           <p>{formattedTime}</p>
+          <BsPencil onClick={handleEditClick} />
         </div>
         {windowStart && windowEnd && (
           <>
@@ -44,15 +68,26 @@ function MedicationInfo({
           </>
         )}
       </div>
+      {isEditing && (
+        <MedicationFormDialog
+          isOpen={isEditing}
+          onClose={handleEditClose}
+          onSubmit={handleEditSubmit}
+          mode="edit"
+          medication={{ name, date, time }}
+          date={date}
+        />
+      )}
     </>
   );
 }
 
 type MedicationCalendarProps = {
   medications: Medication[];
+  onEdit: (medication: Medication) => void;
 };
 
-function MedicationCalendar({ medications }: MedicationCalendarProps) {
+function MedicationCalendar({ medications, onEdit }: MedicationCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState<Date>(
     startOfMonth(new Date())
   );
@@ -83,6 +118,10 @@ function MedicationCalendar({ medications }: MedicationCalendarProps) {
         return 0;
       }) || [];
 
+  const handleEdit = (medication: Medication) => {
+    onEdit(medication);
+  };
+
   return (
     <>
       <MonthlyCalendar
@@ -103,6 +142,7 @@ function MedicationCalendar({ medications }: MedicationCalendarProps) {
                     windowStart={medication.windowStart}
                     windowEnd={medication.windowEnd}
                     notificationsEnabled={medication.notificationsEnabled}
+                    onEdit={handleEdit}
                   />
                 ))
               }

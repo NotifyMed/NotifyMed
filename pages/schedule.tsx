@@ -1,14 +1,12 @@
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import Head from "next/head";
 
-import { Dialog } from "@headlessui/react";
-import { HiX } from "react-icons/hi";
 import { RiMedicineBottleLine } from "react-icons/ri";
 
 import MedicationCalendar, {
   Medication,
-} from "../components/calendar/MedicationCalendar";
-import { MedicationForm } from "@/components/calendar/MedicationForm";
+} from "@/components/calendar/MedicationCalendar";
+import { MedicationFormDialog } from "@/components/medication/MedicationFormDialog";
 
 function MedicationSchedule() {
   const [medications, setMedications] = useState<Medication[]>([]);
@@ -31,17 +29,32 @@ function MedicationSchedule() {
     };
 
     if (open) {
+      document.body.style.overflow = "hidden";
       document.addEventListener("mousedown", handleOverlayClick);
+    } else {
+      document.body.style.overflow = "";
+      document.removeEventListener("mousedown", handleOverlayClick);
     }
 
     return () => {
+      document.body.style.overflow = "";
       document.removeEventListener("mousedown", handleOverlayClick);
     };
   }, [open]);
 
   const handleAddMedication = (medication: Medication) => {
-    setMedications([...medications, medication]);
+    setMedications([...medications, { ...medication }]);
     closeDialog();
+  };
+
+  const handleEditMedication = (medication: Medication) => {
+    setMedications((prevMedications) =>
+      prevMedications.map((prevMedication) =>
+        prevMedication.name === medication.name
+          ? { ...prevMedication, date: medication.date, time: medication.time }
+          : prevMedication
+      )
+    );
   };
 
   return (
@@ -69,30 +82,22 @@ function MedicationSchedule() {
           <RiMedicineBottleLine className="ml-2 h-5 w-5" />
         </button>
 
-        <MedicationCalendar medications={medications} />
-        <Dialog
-          open={open}
-          onClose={closeDialog}
-          static={false}
-          className="fixed z-10 inset-0 overflow-y-auto"
-        >
+        <MedicationCalendar
+          medications={medications}
+          onEdit={handleEditMedication}
+        />
+        {open && (
           <div
-            className="flex items-center justify-center min-h-screen"
+            className="fixed top-0 left-0 w-full h-full bg-black opacity-50 z-10"
             ref={overlayRef}
-          >
-            <div className="bg-white rounded-lg shadow-xl p-4">
-              <div className="flex justify-between items-center mb-4">
-                <Dialog.Title className="text-lg font-medium text-gray-900">
-                  Add Medication
-                </Dialog.Title>
-                <button onClick={closeDialog}>
-                  <HiX className="h-5 w-5 text-gray-400" />
-                </button>
-              </div>
-              <MedicationForm addMedication={handleAddMedication} />
-            </div>
-          </div>
-        </Dialog>
+          />
+        )}
+        <MedicationFormDialog
+          isOpen={open}
+          onClose={closeDialog}
+          onSubmit={handleAddMedication}
+          mode="add"
+        />
       </section>
     </>
   );

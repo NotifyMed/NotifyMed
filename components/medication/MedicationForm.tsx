@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -14,23 +16,30 @@ const schema = yup.object().shape({
   time: yup.string().required(),
 });
 
-export const MedicationForm = ({
-  addMedication,
-}: {
-  addMedication: (medication: Medication) => void;
-}) => {
+interface Props {
+  onSubmit: (data: Medication, mode: "add" | "edit") => void;
+  defaultValues?: Medication;
+  mode: "add" | "edit";
+}
+
+export const MedicationForm = ({ onSubmit, defaultValues, mode }: Props) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<Medication>({
     resolver: yupResolver(schema),
+    defaultValues,
   });
 
   const handleFormSubmit = (data: Medication) => {
-    addMedication(data);
-    console.log(`${data.name} ${data.time}`);
+    onSubmit(data, mode);
   };
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [reset, defaultValues]);
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)}>
@@ -52,12 +61,22 @@ export const MedicationForm = ({
         {errors.time && <span className="block">This field is required</span>}
       </label>
       <br />
-      <br />
-      <button
-        type="submit"
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-      >
-        Log Medication
+      <button type="submit">
+        {mode === "add" ? (
+          <button
+            type="submit"
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Log Medication
+          </button>
+        ) : (
+          <button
+            type="submit"
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Update
+          </button>
+        )}
       </button>
     </form>
   );
