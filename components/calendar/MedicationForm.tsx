@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 
 interface Medication {
   name: string;
@@ -6,53 +8,48 @@ interface Medication {
   time: string;
 }
 
+const schema = yup.object().shape({
+  name: yup.string().required(),
+  date: yup.date().required(),
+  time: yup.string().required(),
+});
+
 export const MedicationForm = ({
   addMedication,
 }: {
   addMedication: (medication: Medication) => void;
 }) => {
-  const [medicationName, setMedicationName] = useState("");
-  const [medicationDate, setMedicationDate] = useState("");
-  const [medicationTime, setMedicationTime] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<Medication>({
+    resolver: yupResolver(schema),
+  });
 
-  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const medication = {
-      name: medicationName,
-      date: new Date(medicationDate), // Convert the string date to a Date object
-      time: medicationTime,
-    };
-    addMedication(medication);
-    console.log(`${medicationName} ${medicationTime}`);
+  const handleFormSubmit = (data: Medication) => {
+    addMedication(data);
+    console.log(`${data.name} ${data.time}`);
   };
 
   return (
-    <form onSubmit={handleFormSubmit}>
+    <form onSubmit={handleSubmit(handleFormSubmit)}>
       <label>
         Medication:
-        <input
-          type="text"
-          value={medicationName}
-          onChange={(event) => setMedicationName(event.target.value)}
-        />
+        <input type="text" {...register("name")} />
+        {errors.name && <span className="block">This field is required</span>}
       </label>
       <br />
       <label>
         Date Taken:
-        <input
-          type="date"
-          value={medicationDate}
-          onChange={(event) => setMedicationDate(event.target.value)}
-        />
+        <input type="date" {...register("date")} />
+        {errors.date && <span className="block">This field is required</span>}
       </label>
       <br />
       <label>
         Time Taken:
-        <input
-          type="time"
-          value={medicationTime}
-          onChange={(event) => setMedicationTime(event.target.value)}
-        />
+        <input type="time" {...register("time")} />
+        {errors.time && <span className="block">This field is required</span>}
       </label>
       <br />
       <br />
