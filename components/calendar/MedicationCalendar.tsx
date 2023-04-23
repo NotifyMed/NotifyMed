@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { format, startOfMonth } from "date-fns";
-import { BsPencil } from "react-icons/bs";
+import { BsPencil, BsTrash } from "react-icons/bs";
 
 import { MonthlyNav } from "./MonthlyNav";
 import { MedicationFormDialog } from "../medication/MedicationFormDialog";
@@ -22,6 +22,7 @@ export type Medication = {
 
 interface MedicationInfoProps extends Medication {
   onEdit: (medication: Medication) => void;
+  onDelete: (medication: Medication) => void;
 }
 
 function MedicationInfo({
@@ -32,6 +33,7 @@ function MedicationInfo({
   windowEnd,
   notificationsEnabled,
   onEdit,
+  onDelete,
 }: MedicationInfoProps) {
   const formattedTime = format(new Date(`01/01/2000 ${time}`), "h:mma");
 
@@ -51,13 +53,18 @@ function MedicationInfo({
     setIsEditing(false);
   };
 
+  const handleDeleteClick = () => {
+    onDelete({ name, date, time });
+  };
+
   return (
     <>
       <div>
-        <div className="flex justify-between">
+        <div className="flex justify-evenly">
           <p>{name}</p>
           <p>{formattedTime}</p>
           <BsPencil onClick={handleEditClick} />
+          <BsTrash onClick={handleDeleteClick} />
         </div>
         {windowStart && windowEnd && (
           <>
@@ -85,9 +92,14 @@ function MedicationInfo({
 type MedicationCalendarProps = {
   medications: Medication[];
   onEdit: (medication: Medication) => void;
+  onDelete: (medication: Medication) => void;
 };
 
-function MedicationCalendar({ medications, onEdit }: MedicationCalendarProps) {
+function MedicationCalendar({
+  medications,
+  onEdit,
+  onDelete,
+}: MedicationCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState<Date>(
     startOfMonth(new Date())
   );
@@ -122,6 +134,10 @@ function MedicationCalendar({ medications, onEdit }: MedicationCalendarProps) {
     onEdit(medication);
   };
 
+  const handleDelete = (medication: Medication) => {
+    onDelete(medication);
+  };
+
   return (
     <>
       <MonthlyCalendar
@@ -143,6 +159,7 @@ function MedicationCalendar({ medications, onEdit }: MedicationCalendarProps) {
                     windowEnd={medication.windowEnd}
                     notificationsEnabled={medication.notificationsEnabled}
                     onEdit={handleEdit}
+                    onDelete={handleDelete}
                   />
                 ))
               }

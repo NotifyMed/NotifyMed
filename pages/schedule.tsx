@@ -57,6 +57,18 @@ function MedicationSchedule() {
     );
   };
 
+  const handleDeleteMedication = (medication: Medication) => {
+    setMedications((prevMedications) =>
+      prevMedications.filter((prevMedication) => {
+        return (
+          prevMedication.name === medication.name &&
+          prevMedication.date.getTime() === medication.date.getTime() &&
+          prevMedication.time === medication.time
+        );
+      })
+    );
+  };
+
   return (
     <>
       <Head>
@@ -85,6 +97,7 @@ function MedicationSchedule() {
         <MedicationCalendar
           medications={medications}
           onEdit={handleEditMedication}
+          onDelete={handleDeleteMedication}
         />
         {open && (
           <div
