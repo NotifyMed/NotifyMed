@@ -36,7 +36,7 @@ export function MedicationFormDialog({
       className="fixed z-10 inset-0 overflow-y-auto"
     >
       <div className="flex items-center justify-center min-h-screen">
-        <div className="bg-white rounded-lg shadow-xl p-4">
+        <div className="bg-white rounded-lg shadow-xl p-4 dialog-container">
           <div className="flex justify-between items-center mb-4">
             <Dialog.Title className="text-lg font-medium text-gray-900">
               {title}
