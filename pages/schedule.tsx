@@ -23,7 +23,8 @@ function MedicationSchedule() {
 
   useEffect(() => {
     const handleOverlayClick = (event: MouseEvent) => {
-      if (!overlayRef.current?.contains(event.target as Node)) {
+      const dialog = document.querySelector(".dialog-container");
+      if (dialog && !dialog.contains(event.target as Node)) {
         closeDialog();
       }
     };

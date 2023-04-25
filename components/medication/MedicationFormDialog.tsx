@@ -42,7 +42,7 @@ export function MedicationFormDialog({
               {title}
             </Dialog.Title>
             <button onClick={onClose}>
-              <HiX className="h-5 w-5 text-gray-400" />
+              <HiX className="h-5 w-5 text-gray-400 hover:text-gray-800" />
             </button>
           </div>
           <MedicationForm
