@@ -110,7 +110,7 @@ function MedicationSchedule() {
           isOpen={open}
           onClose={closeDialog}
           onSubmit={handleAddMedication}
-          mode="add"
+          mode="log"
         />
       </section>
     </>
