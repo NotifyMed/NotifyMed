@@ -8,7 +8,7 @@ interface MedicationFormDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (medication: Medication) => void;
-  mode: "add" | "edit";
+  mode: "log" | "edit";
   medication?: Medication;
   date?: Date;
 }
@@ -21,7 +21,7 @@ export function MedicationFormDialog({
   medication,
   date = new Date(),
 }: MedicationFormDialogProps) {
-  const title = mode === "add" ? "Add Medication" : "Edit Medication";
+  const title = mode === "log" ? "Log Medication" : "Edit Medication";
 
   const handleFormSubmit = (data: Medication) => {
     onSubmit(data);
