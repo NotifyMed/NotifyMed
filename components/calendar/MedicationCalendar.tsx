@@ -145,7 +145,7 @@ function MedicationCalendar({
         onCurrentMonthChange={(date) => setCurrentMonth(date)}
       >
         <MonthlyNav />
-        <div className="border-b-2 border-t-2 border-l-2 border-r-2">
+        <div className="border-b-2 border-t-2 border-l-2 border-r-2 text-base font-normal text-gray-900">
           <MonthlyBody events={medicationsWithDates}>
             <MonthlyDay<Medication>
               renderDay={(data) =>
