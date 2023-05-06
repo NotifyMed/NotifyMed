@@ -27,7 +27,7 @@ async function addMedication(req: NextApiRequest, res: NextApiResponse) {
       .insert({
         name: req.body.name,
         dose: req.body.dose,
-        doseUnit: req.body.doseUnit,
+        // doseUnit: req.body.doseUnit,
       })
       .returning("*");
     return res.status(200).json(knexResponse);
