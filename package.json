@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "reset": "knex migrate:rollback && knex migrate:latest && knex seed:run"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.14",
@@ -18,9 +19,12 @@
     "autoprefixer": "10.4.14",
     "clsx": "^1.2.1",
     "date-fns": "^2.29.3",
+    "dotenv": "^16.0.3",
     "eslint": "8.38.0",
     "eslint-config-next": "13.3.0",
+    "knex": "^2.4.2",
     "next": "13.3.0",
+    "pg": "^8.10.0",
     "postcss": "8.4.23",
     "react": "18.2.0",
     "react-dom": "18.2.0",
