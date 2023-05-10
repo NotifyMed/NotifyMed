@@ -8,9 +8,12 @@ module.exports = {
   development: {
     client: "postgresql",
     connection: {
-      database: process.env.NEXT_PUBLIC_DATABASE,
-      user: process.env.NEXT_PUBLIC_USERNAME,
-      password: process.env.NEXT_PUBLIC_PASSWORD,
+      database: "notifymed",
+      user: "postgres",
+      password: "postgres",
+      // database: process.env.DATABASE,
+      // user: process.env.USERNAME,
+      // password: process.env.PASSWORD,
     },
     pool: {
       min: 2,

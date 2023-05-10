@@ -1,18 +1,20 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
-
 interface Medication {
+  id: number;
+  medicationId: number;
   name: string;
+  action: string;
   date: Date;
   time: string;
 }
 
 const schema = yup.object().shape({
-  name: yup.string().required(),
+  medicationId: yup.string().required(),
   date: yup.date().required(),
   time: yup.string().required(),
 });
@@ -38,11 +40,35 @@ export const MedicationForm = ({
     defaultValues,
   });
 
-  const handleFormSubmit = (data: Medication) => {
+  const [availableMedication, setAvailableMedication] = useState<Medication[]>(
+    []
+  );
+
+  const getAvailableMedication = async () => {
+    const response = await fetch("/api/medication", {
+      method: "GET",
+    });
+    const data = await response.json();
+    setAvailableMedication(data);
+  };
+
+  const saveMedicationToDatabase = async (data: Medication) => {
+    const response = fetch("/api/medication", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+  };
+
+  const handleFormSubmit = async (data: Medication) => {
+    await saveMedicationToDatabase({ ...data, action: "ADD_MEDICATION_LOG" });
     onSubmit(data, mode);
   };
 
   useEffect(() => {
+    getAvailableMedication();
     reset(defaultValues);
   }, [reset, defaultValues]);
 
@@ -50,11 +76,16 @@ export const MedicationForm = ({
     <form onSubmit={handleSubmit(handleFormSubmit)}>
       <label className="text-base font-medium text-gray-900">
         Medication:
-        <input
-          type="text"
+        <select
+          {...register("medicationId")}
           className="ml-2 text-base font-normal text-gray-900"
-          {...register("name")}
-        />
+        >
+          {availableMedication.map((medication) => (
+            <option key={medication.id} value={medication.id}>
+              {medication.name}
+            </option>
+          ))}
+        </select>
         {errors.name && <span className="block">This field is required</span>}
       </label>
       <br />
