@@ -4,20 +4,24 @@ import knex from "@/src/knex/knex";
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   switch (req.method) {
     case "PUT":
-      addMedication(req, res);
-      break;
+      return handlePostMedication(req, res);
     case "GET":
-      getMedication(req, res);
-      break;
+      return getMedication(req, res);
     case "DELETE":
-      deleteMedication(req, res);
-      break;
+      return deleteMedication(req, res);
     case "PATCH":
-      updateMedication(req, res);
-      break;
+      return updateMedication(req, res);
     default:
-      getMedication(req, res);
-      break;
+      return getMedication(req, res);
+  }
+}
+
+function handlePostMedication(req: NextApiRequest, res: NextApiResponse) {
+  switch (req.body.action) {
+    case "ADD_MEDICATION":
+      return addMedication(req, res);
+    case "ADD_MEDICATION_LOG":
+      return addMedicationLog(req, res);
   }
 }
 
@@ -27,7 +31,21 @@ async function addMedication(req: NextApiRequest, res: NextApiResponse) {
       .insert({
         name: req.body.name,
         dose: req.body.dose,
-        // doseUnit: req.body.doseUnit,
+        doseUnit: req.body.doseUnit,
+      })
+      .returning("*");
+    return res.status(200).json(knexResponse);
+  } catch (e) {
+    return res.status(400).json({ error: e });
+  }
+}
+
+async function addMedicationLog(req: NextApiRequest, res: NextApiResponse) {
+  try {
+    let knexResponse = await knex("medicationLog")
+      .insert({
+        medication_id: req.body.medicationId,
+        dateTaken: req.body.date,
       })
       .returning("*");
     return res.status(200).json(knexResponse);
