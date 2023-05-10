@@ -12,6 +12,9 @@ import {
 } from "@zach.codes/react-calendar";
 
 export type Medication = {
+  action: string;
+  id: number;
+  medicationId: number;
   name: string;
   date: Date;
   time: string;
@@ -26,6 +29,9 @@ interface MedicationInfoProps extends Medication {
 }
 
 function MedicationInfo({
+  id,
+  medicationId,
+  action,
   name,
   date,
   time,
@@ -54,7 +60,7 @@ function MedicationInfo({
   };
 
   const handleDeleteClick = () => {
-    onDelete({ name, date, time });
+    onDelete({ name, date, time, id, medicationId, action });
   };
 
   return (
@@ -81,7 +87,7 @@ function MedicationInfo({
           onClose={handleEditClose}
           onSubmit={handleEditSubmit}
           mode="edit"
-          medication={{ name, date, time }}
+          medication={{ name, date, time, id, medicationId, action }}
           date={date}
         />
       )}
@@ -151,6 +157,9 @@ function MedicationCalendar({
               renderDay={(data) =>
                 data.map((medication, index) => (
                   <MedicationInfo
+                    id={medication.id}
+                    medicationId={medication.medicationId}
+                    action={medication.action}
                     key={index}
                     name={medication.name}
                     date={medication.date}
