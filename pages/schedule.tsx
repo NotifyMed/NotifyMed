@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Head from "next/head";
+import axios from "axios";
 
 import { RiMedicineBottleLine } from "react-icons/ri";
 import { Medication } from "@/components/medication/MedicationForm";
@@ -42,31 +43,55 @@ function MedicationSchedule() {
     };
   }, [open]);
 
-  const handleAddMedication = (medication: Medication) => {
-    setMedications([...medications, { ...medication }]);
-    closeDialog();
+  const handleAddMedication = async (medication: Medication) => {
+    try {
+      const response = await axios.post("/api/medication", {
+        action: "ADD_MEDICATION",
+        name: medication.name,
+        dose: medication.dose,
+        doseUnit: medication.doseUnit,
+      });
+      if (response.status === 200) {
+        setMedications([...medications, response.data]);
+        closeDialog();
+      }
+    } catch (error) {
+      console.error("Failed to add medication:", error);
+    }
   };
 
-  const handleEditMedication = (medication: Medication) => {
-    setMedications((prevMedications) =>
-      prevMedications.map((prevMedication) =>
-        prevMedication.name === medication.name
-          ? { ...prevMedication, date: medication.date, time: medication.time }
-          : prevMedication
-      )
-    );
-  };
-
-  const handleDeleteMedication = (medication: Medication) => {
-    setMedications((prevMedications) =>
-      prevMedications.filter((prevMedication) => {
-        return (
-          prevMedication.name === medication.name &&
-          prevMedication.date.getTime() === medication.date.getTime() &&
-          prevMedication.time === medication.time
+  const handleEditMedication = async (medication: Medication) => {
+    try {
+      const response = await axios.patch(`/api/medication/${medication.id}`, {
+        action: "EDIT_MEDICATION",
+        id: medication.id,
+        name: medication.name,
+      });
+      if (response.status === 200) {
+        setMedications((prevMedications) =>
+          prevMedications.map((prevMedication) =>
+            prevMedication.id === medication.id ? response.data : prevMedication
+          )
         );
-      })
-    );
+      }
+    } catch (error) {
+      console.error("Failed to edit medication:", error);
+    }
+  };
+
+  const handleDeleteMedication = async (medication: Medication) => {
+    try {
+      const response = await axios.delete(`/api/medication/${medication.id}`);
+      if (response.status === 200) {
+        setMedications((prevMedications) =>
+          prevMedications.filter(
+            (prevMedication) => prevMedication.id !== medication.id
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Failed to delete medication:", error);
+    }
   };
 
   return (
