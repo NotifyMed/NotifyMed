@@ -1,7 +1,7 @@
 import { Dialog } from "@headlessui/react";
 import { HiX } from "react-icons/hi";
 
-import { Medication } from "../calendar/MedicationCalendar";
+import { Medication } from "../medication/MedicationForm";
 import { MedicationForm } from "./MedicationForm";
 
 interface MedicationFormDialogProps {
