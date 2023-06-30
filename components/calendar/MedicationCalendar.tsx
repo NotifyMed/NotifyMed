@@ -3,6 +3,7 @@ import { format, startOfMonth } from "date-fns";
 import { BsPencil, BsTrash } from "react-icons/bs";
 
 import { MonthlyNav } from "./MonthlyNav";
+import { Medication } from "../medication/MedicationForm";
 import { MedicationFormDialog } from "../medication/MedicationFormDialog";
 
 import {
@@ -10,18 +11,6 @@ import {
   MonthlyDay,
   MonthlyCalendar,
 } from "@zach.codes/react-calendar";
-
-export type Medication = {
-  action: string;
-  id: number;
-  medicationId: number;
-  name: string;
-  date: Date;
-  time: string;
-  windowStart?: string;
-  windowEnd?: string;
-  notificationsEnabled?: string;
-};
 
 interface MedicationInfoProps extends Medication {
   onEdit: (medication: Medication) => void;
@@ -35,9 +24,6 @@ function MedicationInfo({
   name,
   date,
   time,
-  windowStart,
-  windowEnd,
-  notificationsEnabled,
   onEdit,
   onDelete,
 }: MedicationInfoProps) {
@@ -72,21 +58,12 @@ function MedicationInfo({
           <BsPencil onClick={handleEditClick} />
           <BsTrash onClick={handleDeleteClick} />
         </div>
-        {windowStart && windowEnd && (
-          <>
-            <p>
-              Window: {windowStart} - {windowEnd}
-            </p>
-            <p>Notifications enabled: {notificationsEnabled ? "Yes" : "No"}</p>
-          </>
-        )}
       </div>
       {isEditing && (
         <MedicationFormDialog
           isOpen={isEditing}
           onClose={handleEditClose}
           onSubmit={handleEditSubmit}
-          mode="edit"
           medication={{ name, date, time, id, medicationId, action }}
           date={date}
         />
@@ -155,18 +132,15 @@ function MedicationCalendar({
           <MonthlyBody events={medicationsWithDates}>
             <MonthlyDay<Medication>
               renderDay={(data) =>
-                data.map((medication, index) => (
+                data.map((medication) => (
                   <MedicationInfo
+                    key={medication.id}
                     id={medication.id}
                     medicationId={medication.medicationId}
                     action={medication.action}
-                    key={index}
                     name={medication.name}
                     date={medication.date}
                     time={medication.time}
-                    windowStart={medication.windowStart}
-                    windowEnd={medication.windowEnd}
-                    notificationsEnabled={medication.notificationsEnabled}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
                   />

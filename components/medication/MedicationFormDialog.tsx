@@ -1,14 +1,13 @@
 import { Dialog } from "@headlessui/react";
 import { HiX } from "react-icons/hi";
 
-import { Medication } from "../calendar/MedicationCalendar";
+import { Medication } from "../medication/MedicationForm";
 import { MedicationForm } from "./MedicationForm";
 
 interface MedicationFormDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (medication: Medication) => void;
-  mode: "log" | "edit";
   medication?: Medication;
   date?: Date;
 }
@@ -17,12 +16,8 @@ export function MedicationFormDialog({
   isOpen,
   onClose,
   onSubmit,
-  mode,
   medication,
-  date = new Date(),
 }: MedicationFormDialogProps) {
-  const title = mode === "log" ? "Log Medication" : "Edit Medication";
-
   const handleFormSubmit = (data: Medication) => {
     onSubmit(data);
     onClose();
@@ -39,7 +34,7 @@ export function MedicationFormDialog({
         <div className="bg-white rounded-lg shadow-xl p-4 dialog-container">
           <div className="flex justify-between items-center mb-4">
             <Dialog.Title className="text-lg font-medium text-gray-900">
-              {title}
+              Medication
             </Dialog.Title>
             <button onClick={onClose}>
               <HiX className="h-5 w-5 text-gray-400 hover:text-gray-800" />
@@ -48,7 +43,6 @@ export function MedicationFormDialog({
           <MedicationForm
             onSubmit={handleFormSubmit}
             defaultValues={medication}
-            mode={mode}
           />
         </div>
       </div>

@@ -2,10 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import Head from "next/head";
 
 import { RiMedicineBottleLine } from "react-icons/ri";
+import { Medication } from "@/components/medication/MedicationForm";
 
-import MedicationCalendar, {
-  Medication,
-} from "@/components/calendar/MedicationCalendar";
+import MedicationCalendar from "@/components/calendar/MedicationCalendar";
 import { MedicationFormDialog } from "@/components/medication/MedicationFormDialog";
 
 function MedicationSchedule() {
@@ -110,7 +109,6 @@ function MedicationSchedule() {
           isOpen={open}
           onClose={closeDialog}
           onSubmit={handleAddMedication}
-          mode="log"
         />
       </section>
     </>
