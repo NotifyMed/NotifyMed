@@ -1,17 +1,7 @@
-import { signIn, useSession } from "next-auth/react";
-import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { GetServerSidePropsContext } from "next";
+import { signIn, getSession } from "next-auth/react";
 
 export default function Login() {
-  const { data: session } = useSession();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (session) {
-      router.push("/account");
-    }
-  }, [session, router]);
-
   return (
     <>
       <p>You are not signed in</p>
@@ -24,3 +14,25 @@ export default function Login() {
     </>
   );
 }
+
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
+  const session = await getSession(context);
+  const { query } = context;
+
+  if (session) {
+    const destination = query.previous ? `/${query.previous}` : "/account";
+    return {
+      redirect: {
+        destination,
+      },
+    };
+  }
+
+  return {
+    props: {
+      session,
+    },
+  };
+};
