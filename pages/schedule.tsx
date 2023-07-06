@@ -123,10 +123,11 @@ export const getServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
   const session = await getSession(context);
+
   if (!session) {
     return {
       redirect: {
-        destination: "/login",
+        destination: "/login?previous=schedule",
       },
     };
   }
