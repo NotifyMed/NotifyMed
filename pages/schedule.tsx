@@ -6,6 +6,7 @@ import { Medication } from "@/components/medication/MedicationForm";
 
 import MedicationCalendar from "@/components/calendar/MedicationCalendar";
 import { MedicationFormDialog } from "@/components/medication/MedicationFormDialog";
+import SignInSignOut from "@/pages/login";
 
 function MedicationSchedule() {
   const [medications, setMedications] = useState<Medication[]>([]);
@@ -93,7 +94,6 @@ function MedicationSchedule() {
           <span>Add Medication</span>
           <RiMedicineBottleLine className="ml-2 h-5 w-5" />
         </button>
-
         <MedicationCalendar
           medications={medications}
           onEdit={handleEditMedication}
