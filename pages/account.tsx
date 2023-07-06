@@ -22,7 +22,7 @@ export default function Login() {
           className="m-2 mt-4 py-2 px-4 bg-red-500 text-white rounded-md shadow hover:bg-red-600"
         >
           Sign Out
-        </button>{" "}
+        </button>
       </div>
       {status !== "authenticated" && (
         <div>

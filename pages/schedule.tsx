@@ -1,3 +1,6 @@
+import { GetServerSidePropsContext } from "next";
+import { getSession } from "next-auth/react";
+
 import { useEffect, useRef, useState } from "react";
 import Head from "next/head";
 
@@ -6,7 +9,6 @@ import { Medication } from "@/components/medication/MedicationForm";
 
 import MedicationCalendar from "@/components/calendar/MedicationCalendar";
 import { MedicationFormDialog } from "@/components/medication/MedicationFormDialog";
-import SignInSignOut from "@/pages/login";
 
 function MedicationSchedule() {
   const [medications, setMedications] = useState<Medication[]>([]);
@@ -116,3 +118,21 @@ function MedicationSchedule() {
 }
 
 export default MedicationSchedule;
+
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
+  const session = await getSession(context);
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/login",
+      },
+    };
+  }
+  return {
+    props: {
+      session,
+    },
+  };
+};
