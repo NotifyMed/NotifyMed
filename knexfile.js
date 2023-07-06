@@ -1,19 +1,10 @@
-// var path = require("path");
-
-// require("dotenv").config({ path: path.join(__dirname, "../.env") });
-
-// console.dir(process.env);
-
 module.exports = {
   development: {
     client: "postgresql",
     connection: {
-      database: "notifymed",
-      user: "postgres",
-      password: "postgres",
-      // database: process.env.DATABASE,
-      // user: process.env.USERNAME,
-      // password: process.env.PASSWORD,
+      database: process.env.DATABASE,
+      user: process.env.USERNAME,
+      password: process.env.PASSWORD,
     },
     pool: {
       min: 2,
