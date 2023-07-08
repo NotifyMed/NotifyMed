@@ -1,7 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import { getServerSession } from "next-auth";
 import knex from "@/src/knex/knex";
+import { authOptions } from "./auth/[...nextauth]";
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  const session = await getServerSession(req, res, authOptions);
+  if (!session) return res.status(403).json({ error: "Permission denied" });
   switch (req.method) {
     case "PUT":
       return handlePostMedication(req, res);
