@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { Combobox, Transition } from "@headlessui/react";
+import { HiOutlineCheck } from "react-icons/hi";
 
 export type Medication = {
   action: string;
@@ -26,14 +28,24 @@ interface MedicationFormProps {
   defaultValues?: Medication;
 }
 
-export const MedicationForm = ({ onSubmit, defaultValues }: MedicationFormProps) => {
+export const MedicationForm = ({
+  onSubmit,
+  defaultValues,
+}: MedicationFormProps) => {
   const [availableMedication, setAvailableMedication] = useState<Medication[]>(
     []
   );
 
   const [showAddNewMedicine, setShowAddNewMedicine] = useState(false);
-
   const [isNewMedication, setIsNewMedication] = useState(false);
+  const [query, setQuery] = useState("");
+
+  const filteredMedications =
+    query === ""
+      ? availableMedication
+      : availableMedication.filter((medication) =>
+          medication.name.toLowerCase().includes(query.toLowerCase())
+        );
 
   const toggleAddNewMedicine = () => {
     setShowAddNewMedicine(!showAddNewMedicine);
@@ -77,19 +89,19 @@ export const MedicationForm = ({ onSubmit, defaultValues }: MedicationFormProps)
     reset(defaultValues);
   }, [reset, defaultValues]);
 
-  const handleMedicationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
+  const handleMedicationChange = (value: Medication | string) => {
     if (value === "add_new") {
       toggleAddNewMedicine();
       setIsNewMedication(true);
     } else {
       const selectedMedication = availableMedication.find(
-        (medication) => medication.id === parseInt(value)
+        (medication) => medication.id
       );
       reset({ ...defaultValues, medicationId: selectedMedication?.id });
       setIsNewMedication(false);
     }
   };
+
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)}>
       {showAddNewMedicine ? (
@@ -154,23 +166,104 @@ export const MedicationForm = ({ onSubmit, defaultValues }: MedicationFormProps)
         <>
           <label className="text-base font-medium text-gray-900">
             Medication:
-            <select
-              {...register("medicationId")}
-              className="ml-2 text-base font-normal text-gray-900"
-              onChange={handleMedicationChange}
-            >
-              <option disabled>Find or add medicine</option>
-              <option value="add_new">+ Add new medicine</option>
-              {availableMedication.map((medication) => (
-                <option
-                  key={medication.id}
-                  value={medication.id}
-                  selected={defaultValues?.medicationId === medication.id}
+            <Combobox>
+              <div className="relative mt-1">
+                <div className="relative w-full cursor-default overflow-hidden rounded-lg bg-white text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm">
+                  <Combobox.Input
+                    className="w-full border-none py-2 pl-3 pr-10 text-sm leading-5 text-gray-900 focus:ring-0"
+                    placeholder="Find or add new medicine"
+                    displayValue={(medication: Medication) => medication.name}
+                    onChange={(event) => setQuery(event.target.value)}
+                  />
+                  <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      className="w-6 h-6"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"
+                      />
+                    </svg>
+                  </Combobox.Button>
+                </div>
+                <Transition
+                  as={Fragment}
+                  leave="transition ease-in duration-100"
+                  leaveFrom="opacity-100"
+                  leaveTo="opacity-0"
+                  afterLeave={() => setQuery("")}
                 >
-                  {medication.name}
-                </option>
-              ))}
-            </select>
+                  <Combobox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                    <Combobox.Option
+                      className="relative cursor-default select-none py-2 pl-10 pr-4 text-gray-900"
+                      value="add_new"
+                    >
+                      {({ active }) => (
+                        <>
+                          <span
+                            className={`block truncate ${
+                              active ? "font-medium" : "font-normal"
+                            }`}
+                            onClick={() => handleMedicationChange("add_new")}
+                          >
+                            + Add new medicine
+                          </span>
+                        </>
+                      )}
+                    </Combobox.Option>
+                    {filteredMedications.length === 0 && query !== "" ? (
+                      <div className="relative cursor-default select-none py-2 px-4 text-gray-700">
+                        Nothing found.
+                      </div>
+                    ) : (
+                      filteredMedications.map((medication) => (
+                        <Combobox.Option
+                          key={medication.id}
+                          className={({ active }) =>
+                            `relative cursor-default select-none py-2 pl-10 pr-4 ${
+                              active
+                                ? "bg-teal-600 text-white"
+                                : "text-gray-900"
+                            }`
+                          }
+                          value={medication}
+                        >
+                          {({ selected, active }) => (
+                            <>
+                              <span
+                                className={`block truncate ${
+                                  selected ? "font-medium" : "font-normal"
+                                }`}
+                              >
+                                {medication.name}
+                              </span>
+                              {selected ? (
+                                <span
+                                  className={`absolute inset-y-0 left-0 flex items-center pl-3 ${
+                                    active ? "text-white" : "text-teal-600"
+                                  }`}
+                                >
+                                  <HiOutlineCheck
+                                    className="h-5 w-5"
+                                    aria-hidden="true"
+                                  />
+                                </span>
+                              ) : null}
+                            </>
+                          )}
+                        </Combobox.Option>
+                      ))
+                    )}
+                  </Combobox.Options>
+                </Transition>
+              </div>
+            </Combobox>
             {errors.medicationId && (
               <span className="block">This field is required</span>
             )}
