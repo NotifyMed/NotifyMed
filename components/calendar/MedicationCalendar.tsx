@@ -12,31 +12,22 @@ import {
   MonthlyCalendar,
 } from "@zach.codes/react-calendar";
 
-interface MedicationInfoProps extends Medication {
+interface MedicationInfoProps {
+  medication: Medication;
   onEdit: (medication: Medication) => void;
   onDelete: (medication: Medication) => void;
 }
 
-function MedicationInfo({
-  id,
-  medicationId,
-  action,
-  name,
-  date,
-  time,
-  dose,
-  doseUnit,
-  logWindowStart,
-  logWindowEnd,
-  onEdit,
-  onDelete,
-}: MedicationInfoProps) {
-  const formattedTime = format(new Date(`01/01/2000 ${time}`), "h:mma");
+function MedicationInfo({ medication, onEdit, onDelete }: MedicationInfoProps) {
+  const formattedTime = format(
+    new Date(`01/01/2000 ${medication.time}`),
+    "h:mma"
+  );
 
   const [isEditing, setIsEditing] = useState(false);
 
   const handleEditClick = () => {
-    setIsEditing(true);
+    onEdit(medication);
   };
 
   const handleEditClose = () => {
@@ -50,25 +41,14 @@ function MedicationInfo({
   };
 
   const handleDeleteClick = () => {
-    onDelete({
-      name,
-      date,
-      dose,
-      doseUnit,
-      logWindowStart,
-      logWindowEnd,
-      time,
-      id,
-      medicationId,
-      action,
-    });
+    onDelete(medication);
   };
 
   return (
     <>
       <div>
         <div className="flex justify-evenly">
-          <p>{name}</p>
+          <p>{medication.name}</p>
           <p>{formattedTime}</p>
           <BsPencil onClick={handleEditClick} />
           <BsTrash onClick={handleDeleteClick} />
@@ -79,19 +59,7 @@ function MedicationInfo({
           isOpen={isEditing}
           onClose={handleEditClose}
           onSubmit={handleEditSubmit}
-          medication={{
-            name,
-            date,
-            dose,
-            doseUnit,
-            logWindowStart,
-            logWindowEnd,
-            time,
-            id,
-            medicationId,
-            action,
-          }}
-          date={date}
+          medication={medication}
         />
       )}
     </>
@@ -161,16 +129,7 @@ function MedicationCalendar({
                 data.map((medication) => (
                   <MedicationInfo
                     key={medication.id}
-                    id={medication.id}
-                    medicationId={medication.medicationId}
-                    action={medication.action}
-                    name={medication.name}
-                    date={medication.date}
-                    time={medication.time}
-                    dose={medication.dose}
-                    doseUnit={medication.doseUnit}
-                    logWindowStart={medication.logWindowStart}
-                    logWindowEnd={medication.logWindowEnd}
+                    medication={medication}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
                   />
