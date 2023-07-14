@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import { useState, useEffect, Fragment } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -8,11 +8,12 @@ import { HiOutlineCheck } from "react-icons/hi";
 export type Medication = {
   action: string;
   id: number;
-  medicationId: number | "";
+  medicationId: number;
   name: string;
-  dose?: number;
-  doseUnit?: string;
-  logTime?: string;
+  dose: number;
+  doseUnit: string;
+  logWindowStart: string;
+  logWindowEnd: string;
   date: Date;
   time: string;
 };
@@ -21,6 +22,10 @@ const schema = yup.object().shape({
   medicationId: yup.string().required(),
   date: yup.date().required(),
   time: yup.string().required(),
+  dose: yup.number().required(),
+  doseUnit: yup.string().required(),
+  logWindowStart: yup.string().required(),
+  logWindowEnd: yup.string().required(),
 });
 
 interface MedicationFormProps {
@@ -35,9 +40,7 @@ export const MedicationForm = ({
   const [availableMedication, setAvailableMedication] = useState<Medication[]>(
     []
   );
-
   const [showAddNewMedicine, setShowAddNewMedicine] = useState(false);
-  const [isNewMedication, setIsNewMedication] = useState(false);
   const [query, setQuery] = useState("");
 
   const filteredMedications =
@@ -92,13 +95,13 @@ export const MedicationForm = ({
   const handleMedicationChange = (value: Medication | string) => {
     if (value === "add_new") {
       toggleAddNewMedicine();
-      setIsNewMedication(true);
+      setShowAddNewMedicine(true);
     } else {
       const selectedMedication = availableMedication.find(
         (medication) => medication.id
       );
       reset({ ...defaultValues, medicationId: selectedMedication?.id });
-      setIsNewMedication(false);
+      setShowAddNewMedicine(false);
     }
   };
 
@@ -143,24 +146,29 @@ export const MedicationForm = ({
           </label>
           <br />
           <label className="text-base font-medium text-gray-900">
-            Log Time:
+            Log Time (Start):
             <input
               type="time"
               className="ml-2 text-base font-normal text-gray-900"
-              {...register("logTime", { required: true })}
+              {...register("logWindowStart", { required: true })}
             />
-            {errors.logTime && (
+            {errors.logWindowStart && (
               <span className="block">This field is required</span>
             )}
           </label>
           <br />
-          <button
-            type="button"
-            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 mt-4 rounded"
-            onClick={toggleAddNewMedicine}
-          >
-            Cancel
-          </button>
+          <label className="text-base font-medium text-gray-900">
+            Log Time (Start):
+            <input
+              type="time"
+              className="ml-2 text-base font-normal text-gray-900"
+              {...register("logWindowEnd", { required: true })}
+            />
+            {errors.logWindowEnd && (
+              <span className="block">This field is required</span>
+            )}
+          </label>
+          <br />
         </>
       ) : (
         <>
@@ -170,7 +178,7 @@ export const MedicationForm = ({
               <div className="relative mt-1">
                 <div className="relative w-full cursor-default overflow-hidden rounded-lg bg-white text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm">
                   <Combobox.Input
-                    className="w-full border-none py-2 pl-3 pr-10 text-sm leading-5 text-gray-900 focus:ring-0"
+                    className="w-full border-none py-2 pl-3 pr-10 text-sm leading-5 text-gray-900  focus:ring-0"
                     placeholder="Find or add new medicine"
                     displayValue={(medication: Medication) => medication.name}
                     onChange={(event) => setQuery(event.target.value)}
@@ -201,7 +209,11 @@ export const MedicationForm = ({
                 >
                   <Combobox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
                     <Combobox.Option
-                      className="relative cursor-default select-none py-2 pl-10 pr-4 text-gray-900"
+                      className={({ active }) =>
+                        `relative cursor-default select-none py-2 pl-10 pr-4 ${
+                          active ? "bg-teal-600 text-white" : "text-gray-900"
+                        }`
+                      }
                       value="add_new"
                     >
                       {({ active }) => (
@@ -295,12 +307,23 @@ export const MedicationForm = ({
           <br />
         </>
       )}
-      <button
-        type="submit"
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mt-4 rounded"
-      >
-        {isNewMedication ? "Save" : "Log"}
-      </button>
+      <div className="flex justify-end">
+        {showAddNewMedicine && (
+          <button
+            type="button"
+            className="text-teal-600 hover:text-black py-2 px-4 mt-4 rounded"
+            onClick={toggleAddNewMedicine}
+          >
+            Cancel
+          </button>
+        )}
+        <button
+          type="submit"
+          className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 mt-4 rounded"
+        >
+          {showAddNewMedicine ? "Save Medicine" : "Log Medicine"}
+        </button>
+      </div>
     </form>
   );
 };

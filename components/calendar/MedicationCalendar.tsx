@@ -24,6 +24,10 @@ function MedicationInfo({
   name,
   date,
   time,
+  dose,
+  doseUnit,
+  logWindowStart,
+  logWindowEnd,
   onEdit,
   onDelete,
 }: MedicationInfoProps) {
@@ -46,7 +50,18 @@ function MedicationInfo({
   };
 
   const handleDeleteClick = () => {
-    onDelete({ name, date, time, id, medicationId, action });
+    onDelete({
+      name,
+      date,
+      dose,
+      doseUnit,
+      logWindowStart,
+      logWindowEnd,
+      time,
+      id,
+      medicationId,
+      action,
+    });
   };
 
   return (
@@ -64,7 +79,18 @@ function MedicationInfo({
           isOpen={isEditing}
           onClose={handleEditClose}
           onSubmit={handleEditSubmit}
-          medication={{ name, date, time, id, medicationId, action }}
+          medication={{
+            name,
+            date,
+            dose,
+            doseUnit,
+            logWindowStart,
+            logWindowEnd,
+            time,
+            id,
+            medicationId,
+            action,
+          }}
           date={date}
         />
       )}
@@ -141,6 +167,10 @@ function MedicationCalendar({
                     name={medication.name}
                     date={medication.date}
                     time={medication.time}
+                    dose={medication.dose}
+                    doseUnit={medication.doseUnit}
+                    logWindowStart={medication.logWindowStart}
+                    logWindowEnd={medication.logWindowEnd}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
                   />
