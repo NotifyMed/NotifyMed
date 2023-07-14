@@ -2,6 +2,8 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import knex from "@/src/knex/knex";
 import { authOptions } from "./auth/[...nextauth]";
+import { getSession } from "next-auth/react";
+import { capitalizeFirstLetter } from "../account";
 
 export default async function handler(
   req: NextApiRequest,
@@ -38,7 +40,7 @@ async function addMedication(req: NextApiRequest, res: NextApiResponse) {
   try {
     let knexResponse = await knex("medications")
       .insert({
-        name: req.body.name,
+        name: capitalizeFirstLetter(req.body.name),
         dose: req.body.dose,
         doseUnit: req.body.doseUnit,
       })
@@ -48,6 +50,33 @@ async function addMedication(req: NextApiRequest, res: NextApiResponse) {
     return res.status(400).json({ error: e });
   }
 }
+
+async function updateMedication(req: NextApiRequest, res: NextApiResponse) {
+  try {
+    let knexResponse = await knex("medications")
+      .where({ id: req.body.id })
+      .update({ name: capitalizeFirstLetter(req.body.name) })
+      .returning("*");
+    return res.status(200).json(knexResponse);
+  } catch (e) {
+    return res.status(400).json({ error: e });
+  }
+}
+
+// async function addMedication(req: NextApiRequest, res: NextApiResponse) {
+//   try {
+//     let knexResponse = await knex("medications")
+//       .insert({
+//         name: req.body.name,
+//         dose: req.body.dose,
+//         doseUnit: req.body.doseUnit,
+//       })
+//       .returning("*");
+//     return res.status(200).json(knexResponse);
+//   } catch (e) {
+//     return res.status(400).json({ error: e });
+//   }
+// }
 
 async function addMedicationLog(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -83,10 +112,18 @@ async function addMedicationSchedule(
 
 async function getMedication(req: NextApiRequest, res: NextApiResponse) {
   try {
+    const session = await getSession({ req });
+    if (!session) {
+      return res.status(403).json({ error: "Permission denied" });
+    }
+
+    //@ts-ignore
+    const userId = session.user.userId;
+
     let id = req.query.id;
     let knexResponse = await knex("medications").modify((qb) => {
       id && qb.where({ id: id });
-      qb.where({ isDeleted: false });
+      qb.where({ isDeleted: false, user_id: userId }); // Add condition to filter by user_id
     });
 
     return res.status(200).json(knexResponse);
@@ -95,17 +132,32 @@ async function getMedication(req: NextApiRequest, res: NextApiResponse) {
   }
 }
 
-async function updateMedication(req: NextApiRequest, res: NextApiResponse) {
-  try {
-    let knexResponse = await knex("medications")
-      .where({ id: req.body.id })
-      .update({ name: req.body.name })
-      .returning("*");
-    return res.status(200).json(knexResponse);
-  } catch (e) {
-    return res.status(400).json({ error: e });
-  }
-}
+
+// async function getMedication(req: NextApiRequest, res: NextApiResponse) {
+//   try {
+//     let id = req.query.id;
+//     let knexResponse = await knex("medications").modify((qb) => {
+//       id && qb.where({ id: id });
+//       qb.where({ isDeleted: false });
+//     });
+
+//     return res.status(200).json(knexResponse);
+//   } catch (e) {
+//     return res.status(400).json({ error: e });
+//   }
+// }
+
+// async function updateMedication(req: NextApiRequest, res: NextApiResponse) {
+//   try {
+//     let knexResponse = await knex("medications")
+//       .where({ id: req.body.id })
+//       .update({ name: req.body.name })
+//       .returning("*");
+//     return res.status(200).json(knexResponse);
+//   } catch (e) {
+//     return res.status(400).json({ error: e });
+//   }
+// }
 
 async function deleteMedication(req: NextApiRequest, res: NextApiResponse) {
   try {

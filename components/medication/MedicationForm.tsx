@@ -4,6 +4,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { Combobox, Transition } from "@headlessui/react";
 import { HiOutlineCheck } from "react-icons/hi";
+import axios from "axios";
 
 export type Medication = {
   action: string;
@@ -65,23 +66,26 @@ export const MedicationForm = ({
   });
 
   const getAvailableMedication = async () => {
-    const response = await fetch("/api/medication", {
-      method: "GET",
-    });
-    const data = await response.json();
-    setAvailableMedication(data);
+    try {
+      const response = await axios.get("/api/medication");
+      const data = response.data;
+      setAvailableMedication(data);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const saveMedicationToDatabase = async (data: Medication) => {
-    const response = fetch("/api/medication", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
+    try {
+      const response = await axios.post("/api/medication", data, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (error) {
+      console.error(error);
+    }
   };
-
   const handleFormSubmit = async (data: Medication) => {
     await saveMedicationToDatabase({ ...data, action: "ADD_MEDICATION_LOG" });
     onSubmit(data);
