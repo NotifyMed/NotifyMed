@@ -84,28 +84,15 @@ function MedicationCalendar({
   const medicationsWithDates =
     medications
       ?.filter((medication) => medication.date?.getTime())
-      .map(({ time, ...medication }) => {
-        const [hours, minutes] = time.split(":").map((str) => parseInt(str));
-        const medicationDate = new Date(
-          medication.date!.getFullYear(),
-          medication.date!.getMonth(),
-          medication.date!.getDate(),
-          hours,
-          minutes
-        );
-        return {
-          ...medication,
-          date: medicationDate,
-          time: `${time.slice(0, -3)}${time.slice(-3)}`,
-        };
-      })
-      .sort((a, b) => {
-        if (a.date < b.date) return -1;
-        if (a.date > b.date) return 1;
-        if (a.time < b.time) return -1;
-        if (a.time > b.time) return 1;
-        return 0;
-      }) || [];
+      .map(({ time, ...medication }) => ({
+        ...medication,
+        date: new Date(`${medication.date?.toDateString()} ${time}`),
+        time: time.replace(/:\d{2}(\D*)$/, "$1"),
+      }))
+      .sort(
+        (a, b) =>
+          Number(a.date) - Number(b.date) || a.time.localeCompare(b.time)
+      ) || [];
 
   const handleEdit = (medication: Medication) => {
     onEdit(medication);
