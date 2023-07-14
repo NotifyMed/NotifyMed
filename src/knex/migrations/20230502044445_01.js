@@ -8,7 +8,9 @@ exports.up = function (knex) {
     knex.schema.createTable("users", (table) => {
       table.increments("id").primary();
       table.text("email").notNullable();
-      table.text("password").notNullable();
+      table.text("name");
+      table.text("password");
+      table.string("image");
       table.boolean("isDeleted").defaultTo(false);
       table.timestamps(true, true, true);
     }),

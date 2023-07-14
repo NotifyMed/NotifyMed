@@ -9,5 +9,6 @@ exports.seed = async function (knex) {
     { email: "email@gmail.com", password: "mypassword" },
     { email: "email@gmail2.com", password: "mypassword2" },
     { email: "email@gmail3.com", password: "mypassword3" },
+    { id: 4, email: "alvinwquach@gmail.com" },
   ]);
 };
