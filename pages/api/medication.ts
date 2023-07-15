@@ -106,16 +106,32 @@ async function getMedication(req: NextApiRequest, res: NextApiResponse) {
     const userId = session.user.userId;
 
     let id = req.query.id;
-    let knexResponse = await knex("medications").modify((qb) => {
-      id && qb.where({ id: id });
-      qb.where({ isDeleted: false, user_id: userId }); // Add condition to filter by user_id
-    });
+    let knexResponse = await knex("medications")
+      .join(
+        "medicationschedule",
+        "medications.id",
+        "medicationschedule.medication_id"
+      )
+      .select(
+        "medications.id",
+        "medications.name",
+        "medications.dose",
+        "medications.doseUnit",
+        "medicationschedule.logWindowStart",
+        "medicationschedule.logWindowEnd"
+      )
+      .where((qb) => {
+        id && qb.where("medications.id", id);
+        qb.where("medications.isDeleted", false);
+        qb.where("medications.user_id", userId);
+      });
 
     return res.status(200).json(knexResponse);
   } catch (e) {
     return res.status(400).json({ error: e });
   }
 }
+
 
 
 async function deleteMedication(req: NextApiRequest, res: NextApiResponse) {

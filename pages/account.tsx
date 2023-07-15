@@ -107,7 +107,7 @@ export default function Account() {
   return (
     <>
       {status === "authenticated" && (
-        <div>
+        <section className="flex flex-col items-center justify-center min-h-screen">
           <p>Welcome back {session?.user?.name}!</p>
           <div className="flex items-center">
             <p className="mr-2">Phone Number:</p>
@@ -123,7 +123,10 @@ export default function Account() {
               }}
             />
             <div className="relative">
-              <button onClick={() => setShowOptionsMenu(!showOptionsMenu)}>
+              <button
+                onClick={() => setShowOptionsMenu(!showOptionsMenu)}
+                className="ml-1"
+              >
                 &#8942;
               </button>
               {showOptionsMenu && (
@@ -155,24 +158,6 @@ export default function Account() {
               )}
             </div>
           </div>
-          {loading ? (
-            <p>Loading medications...</p>
-          ) : (
-            <>
-              {medications.length > 0 ? (
-                <ul>
-                  {medications.map((medication) => (
-                    <li key={medication.name}>
-                      {capitalizeFirstLetter(medication.name)} -{" "}
-                      {medication.dose} {medication.doseUnit}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p>No medications found</p>
-              )}
-            </>
-          )}
           <Image
             src={session?.user?.image ?? ""}
             alt={`${session?.user?.name}'s profile picture`}
@@ -180,8 +165,40 @@ export default function Account() {
             width={100}
             className="rounded-full border-4 border-blue-500"
           />
+          {loading ? (
+            <p>Loading medications...</p>
+          ) : (
+            <>
+              {medications.length > 0 ? (
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Medicine</th>
+                      <th>Dose</th>
+                      <th>Dose Unit</th>
+                      <th>Log Window: (Start)</th>
+                      <th>Log Window: (End)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {medications.map((medication) => (
+                      <tr key={medication.name}>
+                        <td>{capitalizeFirstLetter(medication.name)}</td>
+                        <td>{medication.dose}</td>
+                        <td>{medication.doseUnit}</td>
+                        <td>{medication.logWindowStart}</td>
+                        <td>{medication.logWindowEnd}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p>No medications found</p>
+              )}
+            </>
+          )}
           <button onClick={() => signOut()}>Sign Out</button>
-        </div>
+        </section>
       )}
       {status !== "authenticated" && (
         <div>
