@@ -97,7 +97,7 @@ async function addMedicationSchedule(
   res: NextApiResponse
 ) {
   try {
-    let knexResponse = await knex("medicationSchedule")
+    let knexResponse = await knex("medicationschedule")
       .insert({
         medication_id: req.body.medication_id,
         logWindowStart: req.body.logWindowStart,
