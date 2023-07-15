@@ -113,8 +113,8 @@ export const MedicationForm = ({
     <form onSubmit={handleSubmit(handleFormSubmit)}>
       {showAddNewMedicine ? (
         <>
-          <label className="text-base font-medium text-gray-900">
-            Medication Name:
+          <label className="text-white font-medium ">
+            Name:
             <input
               type="text"
               className="ml-2 text-base font-normal text-gray-900"
@@ -125,7 +125,7 @@ export const MedicationForm = ({
             )}
           </label>
           <br />
-          <label className="text-base font-medium text-gray-900">
+          <label className="text-base font-medium text-white">
             Dose:
             <input
               type="number"
@@ -137,7 +137,7 @@ export const MedicationForm = ({
             )}
           </label>
           <br />
-          <label className="text-base font-medium text-gray-900">
+          <label className="text-base font-medium text-white">
             Dose Unit:
             <input
               type="text"
@@ -149,7 +149,7 @@ export const MedicationForm = ({
             )}
           </label>
           <br />
-          <label className="text-base font-medium text-gray-900">
+          <label className="text-base font-medium text-white">
             Log Time (Start):
             <input
               type="time"
@@ -161,7 +161,7 @@ export const MedicationForm = ({
             )}
           </label>
           <br />
-          <label className="text-base font-medium text-gray-900">
+          <label className="text-base font-medium text-white">
             Log Time (Start):
             <input
               type="time"
@@ -176,7 +176,7 @@ export const MedicationForm = ({
         </>
       ) : (
         <>
-          <label className="text-base font-medium text-gray-900">
+          <label className="text-base font-medium text-white">
             Medication:
             <Combobox>
               <div className="relative mt-1">
@@ -211,7 +211,7 @@ export const MedicationForm = ({
                   leaveTo="opacity-0"
                   afterLeave={() => setQuery("")}
                 >
-                  <Combobox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                  <Combobox.Options className="absolute mt-1 max-h-64 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
                     <Combobox.Option
                       className={({ active }) =>
                         `relative cursor-default select-none py-2 pl-10 pr-4 ${
@@ -285,7 +285,7 @@ export const MedicationForm = ({
             )}
           </label>
           <br />
-          <label className="text-base font-medium text-gray-900">
+          <label className="text-base font-medium text-white">
             Date Taken:
             <input
               type="date"
@@ -297,7 +297,7 @@ export const MedicationForm = ({
             )}
           </label>
           <br />
-          <label className="text-base font-medium text-gray-900">
+          <label className="text-base font-medium text-white">
             Time Taken:
             <input
               type="time"
@@ -315,7 +315,7 @@ export const MedicationForm = ({
         {showAddNewMedicine && (
           <button
             type="button"
-            className="text-teal-600 hover:text-black py-2 px-4 mt-4 rounded"
+            className="text-teal-600 hover:text-white py-2 px-4 mb-4 rounded"
             onClick={toggleAddNewMedicine}
           >
             Cancel
@@ -323,7 +323,7 @@ export const MedicationForm = ({
         )}
         <button
           type="submit"
-          className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 mt-4 rounded"
+          className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 mb-4 rounded"
         >
           {showAddNewMedicine ? "Save Medicine" : "Log Medicine"}
         </button>
