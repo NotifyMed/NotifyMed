@@ -63,21 +63,6 @@ async function updateMedication(req: NextApiRequest, res: NextApiResponse) {
   }
 }
 
-// async function addMedication(req: NextApiRequest, res: NextApiResponse) {
-//   try {
-//     let knexResponse = await knex("medications")
-//       .insert({
-//         name: req.body.name,
-//         dose: req.body.dose,
-//         doseUnit: req.body.doseUnit,
-//       })
-//       .returning("*");
-//     return res.status(200).json(knexResponse);
-//   } catch (e) {
-//     return res.status(400).json({ error: e });
-//   }
-// }
-
 async function addMedicationLog(req: NextApiRequest, res: NextApiResponse) {
   try {
     let knexResponse = await knex("medicationLog")
@@ -132,32 +117,6 @@ async function getMedication(req: NextApiRequest, res: NextApiResponse) {
   }
 }
 
-
-// async function getMedication(req: NextApiRequest, res: NextApiResponse) {
-//   try {
-//     let id = req.query.id;
-//     let knexResponse = await knex("medications").modify((qb) => {
-//       id && qb.where({ id: id });
-//       qb.where({ isDeleted: false });
-//     });
-
-//     return res.status(200).json(knexResponse);
-//   } catch (e) {
-//     return res.status(400).json({ error: e });
-//   }
-// }
-
-// async function updateMedication(req: NextApiRequest, res: NextApiResponse) {
-//   try {
-//     let knexResponse = await knex("medications")
-//       .where({ id: req.body.id })
-//       .update({ name: req.body.name })
-//       .returning("*");
-//     return res.status(200).json(knexResponse);
-//   } catch (e) {
-//     return res.status(400).json({ error: e });
-//   }
-// }
 
 async function deleteMedication(req: NextApiRequest, res: NextApiResponse) {
   try {

@@ -27,6 +27,7 @@ async function addUser(req: NextApiRequest, res: NextApiResponse) {
       .insert({
         email: req.body.email,
         password: req.body.password,
+        phone: req.body.phone,
       })
       .returning("*");
     return res.status(200).json(knexResponse);
@@ -38,10 +39,12 @@ async function addUser(req: NextApiRequest, res: NextApiResponse) {
 async function getUser(req: NextApiRequest, res: NextApiResponse) {
   try {
     let id = req.query.id;
-    let knexResponse = await knex("users").modify((qb) => {
-      id && qb.where({ id: id });
-      qb.where({ isDeleted: false });
-    });
+    let knexResponse = await knex("users")
+      .modify((qb) => {
+        id && qb.where({ id });
+        qb.where({ isDeleted: false });
+      })
+      .select("id", "email", "phone");
     return res.status(200).json(knexResponse);
   } catch (e) {
     return res.status(400).json({ error: e });
@@ -52,7 +55,7 @@ async function updateUser(req: NextApiRequest, res: NextApiResponse) {
   try {
     let knexResponse = await knex("users")
       .where({ id: req.body.id })
-      .update({ email: req.body.email })
+      .update({ email: req.body.email, phone: req.body.phone })
       .returning("*");
     console.log(knexResponse);
     return res.status(200).json(knexResponse);

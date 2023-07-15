@@ -33,6 +33,7 @@ export const authOptions: NextAuthOptions = {
             name: user.name,
             image: user.image,
           });
+
           console.log("addedUserToDatabase");
           // console.log(createUser);
         }
