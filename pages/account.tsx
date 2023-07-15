@@ -163,7 +163,7 @@ export default function Account() {
             alt={`${session?.user?.name}'s profile picture`}
             height={100}
             width={100}
-            className="rounded-full border-4 border-blue-500"
+            className="rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
           />
           {loading ? (
             <p>Loading medications...</p>
