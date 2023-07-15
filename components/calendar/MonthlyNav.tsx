@@ -5,7 +5,7 @@ export const MonthlyNav = () => {
   let { currentMonth, onCurrentMonthChange } = useMonthlyCalendar();
 
   return (
-    <div className="border-t-2 border-l-2 border-r-2 flex justify-between text-lg  bg-white py-2 px-3 leading-tight text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
+    <div className=" border-t-2 border-l-2 border-r-2 flex justify-between text-lg  bg-white py-2 px-3 leading-tight text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
       <button
         onClick={() => onCurrentMonthChange(subMonths(currentMonth, 1))}
         className="cursor-pointer  bg-white py-2 px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white inline-flex"

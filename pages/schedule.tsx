@@ -1,53 +1,21 @@
 import { GetServerSidePropsContext } from "next";
 import { getSession } from "next-auth/react";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Head from "next/head";
 
-import { RiMedicineBottleLine } from "react-icons/ri";
-import { Medication } from "@/components/medication/MedicationForm";
+import {
+  Medication,
+  MedicationForm,
+} from "@/components/medication/MedicationForm";
 
 import MedicationCalendar from "@/components/calendar/MedicationCalendar";
-import { MedicationFormDialog } from "@/components/medication/MedicationFormDialog";
 
 function MedicationSchedule() {
   const [medications, setMedications] = useState<Medication[]>([]);
-  const [open, setOpen] = useState<boolean>(false);
-  const overlayRef = useRef<HTMLDivElement>(null);
-
-  function openDialog() {
-    setOpen(true);
-  }
-
-  function closeDialog() {
-    setOpen(false);
-  }
-
-  useEffect(() => {
-    const handleOverlayClick = (event: MouseEvent) => {
-      const dialog = document.querySelector(".dialog-container");
-      if (dialog && !dialog.contains(event.target as Node)) {
-        closeDialog();
-      }
-    };
-
-    if (open) {
-      document.body.style.overflow = "hidden";
-      document.addEventListener("mousedown", handleOverlayClick);
-    } else {
-      document.body.style.overflow = "";
-      document.removeEventListener("mousedown", handleOverlayClick);
-    }
-
-    return () => {
-      document.body.style.overflow = "";
-      document.removeEventListener("mousedown", handleOverlayClick);
-    };
-  }, [open]);
 
   const handleAddMedication = (medication: Medication) => {
     setMedications([...medications, { ...medication }]);
-    closeDialog();
   };
 
   const handleEditMedication = (medication: Medication) => {
@@ -86,38 +54,33 @@ function MedicationSchedule() {
         id="medication-schedule"
         className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-20 sm:py-24 lg:py-24 animate-fade-in-up min-h-screen"
       >
-        <h1 className="mt-5 text-4xl font-medium text-center">
+        <h1 className="mt-5 text-4xl font-medium text-center sr-only">
           Medication Schedule
         </h1>
-        <button
-          className="my-5  bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center"
-          onClick={openDialog}
-        >
-          <span>Add Medication</span>
-          <RiMedicineBottleLine className="ml-2 h-5 w-5" />
-        </button>
-        <MedicationCalendar
-          medications={medications}
-          onEdit={handleEditMedication}
-          onDelete={handleDeleteMedication}
-        />
-        {open && (
-          <div
-            className="fixed top-0 left-0 w-full h-full bg-black opacity-50 z-10"
-            ref={overlayRef}
-          />
-        )}
-        <MedicationFormDialog
-          isOpen={open}
-          onClose={closeDialog}
-          onSubmit={handleAddMedication}
-        />
+        <div className="flex flex-col md:flex-row space-x-4">
+          <div className="w-full md:w-1/2">
+            <MedicationForm
+              onSubmit={function (data: Medication): void {
+                throw new Error("Function not implemented.");
+              }}
+            />
+          </div>
+          <div className="w-full md:w-1/2">
+            <MedicationCalendar
+              medications={medications}
+              onEdit={handleEditMedication}
+              onDelete={handleDeleteMedication}
+            />
+          </div>
+        </div>
       </section>
     </>
   );
 }
 
 export default MedicationSchedule;
+
+
 
 export const getServerSideProps = async (
   context: GetServerSidePropsContext

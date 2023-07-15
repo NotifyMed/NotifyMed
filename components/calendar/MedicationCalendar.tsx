@@ -4,7 +4,6 @@ import { BsPencil, BsTrash } from "react-icons/bs";
 
 import { MonthlyNav } from "./MonthlyNav";
 import { Medication } from "../medication/MedicationForm";
-import { MedicationFormDialog } from "../medication/MedicationFormDialog";
 
 import {
   MonthlyBody,
@@ -54,14 +53,6 @@ function MedicationInfo({ medication, onEdit, onDelete }: MedicationInfoProps) {
           <BsTrash onClick={handleDeleteClick} />
         </div>
       </div>
-      {isEditing && (
-        <MedicationFormDialog
-          isOpen={isEditing}
-          onClose={handleEditClose}
-          onSubmit={handleEditSubmit}
-          medication={medication}
-        />
-      )}
     </>
   );
 }
@@ -108,22 +99,24 @@ function MedicationCalendar({
         currentMonth={currentMonth}
         onCurrentMonthChange={(date) => setCurrentMonth(date)}
       >
-        <MonthlyNav />
-        <div className="border-b-2 border-t-2 border-l-2 border-r-2 text-base font-normal text-gray-900">
-          <MonthlyBody events={medicationsWithDates}>
-            <MonthlyDay<Medication>
-              renderDay={(data) =>
-                data.map((medication) => (
-                  <MedicationInfo
-                    key={medication.id}
-                    medication={medication}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                  />
-                ))
-              }
-            />
-          </MonthlyBody>
+        <div className="flex flex-col">
+          <MonthlyNav />
+          <div className="border-b-2 border-t-2 border-l-2 border-r-2 text-base font-normal text-gray-900">
+            <MonthlyBody events={medicationsWithDates}>
+              <MonthlyDay<Medication>
+                renderDay={(data) =>
+                  data.map((medication) => (
+                    <MedicationInfo
+                      key={medication.id}
+                      medication={medication}
+                      onEdit={handleEdit}
+                      onDelete={handleDelete}
+                    />
+                  ))
+                }
+              />
+            </MonthlyBody>
+          </div>
         </div>
       </MonthlyCalendar>
     </>
