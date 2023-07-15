@@ -28,11 +28,11 @@ exports.up = function (knex) {
       table.integer("medication_id").references("id").inTable("medications");
       table.timestamp("dateTaken").defaultTo(knex.fn.now());
     }),
-    knex.schema.createTable("medicationSchedule", (table) => {
+    knex.schema.createTable("medicationschedule", (table) => {
       table.increments("id").primary();
       table.integer("medication_id").references("id").inTable("medications");
-      table.time("logWindowStart").notNullable;
-      table.time("logWindowEnd").notNullable;
+      table.time("logWindowStart").notNullable();
+      table.time("logWindowEnd").notNullable();
     }),
   ]);
 };
@@ -44,7 +44,7 @@ exports.up = function (knex) {
  */
 exports.down = function (knex) {
   return Promise.all([
-    knex.schema.dropTableIfExists("medicationSchedule"),
+    knex.schema.dropTableIfExists("medicationschedule"),
     knex.schema.dropTableIfExists("medicationLog"),
     knex.schema.dropTableIfExists("medications"),
     knex.schema.dropTableIfExists("users"),
