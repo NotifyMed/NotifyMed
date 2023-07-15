@@ -13,6 +13,58 @@ export default function Account() {
   const { data: session, status } = useSession({ required: true });
   const [medications, setMedications] = useState<Medication[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userData, setUserData] = useState({
+    phone: "",
+    isEditingPhone: false,
+  });
+  const [showOptionsMenu, setShowOptionsMenu] = useState(false);
+
+  const { phone, isEditingPhone } = userData;
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUserData((prevData) => ({
+      ...prevData,
+      phone: e.target.value,
+    }));
+  };
+
+  const handlePhoneSubmit = async () => {
+    try {
+      await axios.put("/api/user", { email: session?.user?.email, phone });
+      console.log("Phone number saved successfully");
+      setShowOptionsMenu(false);
+      sessionStorage.setItem("phone", phone);
+      setUserData((prevData) => ({
+        ...prevData,
+        isEditingPhone: false,
+      }));
+    } catch (error) {
+      console.error("Error saving phone number:", error);
+    }
+  };
+
+  const handleEditPhone = () => {
+    setShowOptionsMenu(false);
+    setUserData((prevData) => ({
+      ...prevData,
+      isEditingPhone: true,
+    }));
+  };
+
+  const handleCancelEditPhone = () => {
+    setShowOptionsMenu(false);
+    setUserData((prevData) => ({
+      ...prevData,
+      phone: sessionStorage.getItem("phone") || "",
+      isEditingPhone: false,
+    }));
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handlePhoneSubmit();
+    }
+  };
 
   useEffect(() => {
     const getUserMedications = async () => {
@@ -26,7 +78,30 @@ export default function Account() {
         setLoading(false);
       }
     };
+
+    const fetchUserPhone = async () => {
+      try {
+        const storedPhone = sessionStorage.getItem("phone");
+        if (storedPhone) {
+          setUserData((prevData) => ({
+            ...prevData,
+            phone: storedPhone,
+          }));
+        } else {
+          const response = await axios.get("/api/user");
+          const [user] = response.data;
+          setUserData((prevData) => ({
+            ...prevData,
+            phone: user?.phone || "",
+          }));
+        }
+      } catch (error) {
+        console.error("Error fetching user phone number:", error);
+      }
+    };
+
     getUserMedications();
+    fetchUserPhone();
   }, []);
 
   return (
@@ -34,6 +109,52 @@ export default function Account() {
       {status === "authenticated" && (
         <div>
           <p>Welcome back {session?.user?.name}!</p>
+          <div className="flex items-center">
+            <p className="mr-2">Phone Number:</p>
+            <input
+              className="text-white bg-black mr-2"
+              type="text"
+              value={phone}
+              onChange={handlePhoneChange}
+              onKeyDown={handleKeyDown}
+              readOnly={!isEditingPhone}
+              style={{
+                userSelect: isEditingPhone ? "text" : "none",
+              }}
+            />
+            <div className="relative">
+              <button onClick={() => setShowOptionsMenu(!showOptionsMenu)}>
+                &#8942;
+              </button>
+              {showOptionsMenu && (
+                <div className="absolute top-full left-0 bg-white p-2 rounded border border-gray-300">
+                  {!isEditingPhone && (
+                    <button
+                      onClick={handleEditPhone}
+                      className="text-black p-2 block w-full text-left"
+                    >
+                      Edit
+                    </button>
+                  )}
+                  <button
+                    onClick={handleCancelEditPhone}
+                    className="text-black p-2 block w-full text-left"
+                  >
+                    Cancel
+                  </button>
+
+                  {isEditingPhone && (
+                    <button
+                      onClick={handlePhoneSubmit}
+                      className="bg-white text-black p-2 block w-full text-left"
+                    >
+                      Save
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
           {loading ? (
             <p>Loading medications...</p>
           ) : (
@@ -70,7 +191,6 @@ export default function Account() {
     </>
   );
 }
-
 
 export const getServerSideProps = async (
   context: GetServerSidePropsContext

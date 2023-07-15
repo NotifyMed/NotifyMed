@@ -10,6 +10,7 @@ exports.up = function (knex) {
       table.text("email").notNullable();
       table.text("name");
       table.text("password");
+      table.string("phone");
       table.string("image");
       table.boolean("isDeleted").defaultTo(false);
       table.timestamps(true, true, true);
