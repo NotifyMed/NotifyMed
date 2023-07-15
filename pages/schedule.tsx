@@ -15,9 +15,11 @@ function MedicationSchedule() {
   const [medications, setMedications] = useState<Medication[]>([]);
 
   const handleAddMedication = (medication: Medication) => {
-    setMedications([...medications, { ...medication }]);
+    setMedications([
+      ...medications,
+      { ...medication, logWindowStart: "", logWindowEnd: "" },
+    ]);
   };
-
   const handleEditMedication = (medication: Medication) => {
     setMedications((prevMedications) =>
       prevMedications.map((prevMedication) =>

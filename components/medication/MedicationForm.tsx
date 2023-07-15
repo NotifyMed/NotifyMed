@@ -162,7 +162,7 @@ export const MedicationForm = ({
           </label>
           <br />
           <label className="text-base font-medium text-white">
-            Log Time (Start):
+            Log Time (End):
             <input
               type="time"
               className="ml-2 text-base font-normal text-gray-900"
