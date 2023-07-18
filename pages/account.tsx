@@ -1,28 +1,27 @@
 import { GetServerSidePropsContext } from "next";
 import { useSession, signOut, getSession } from "next-auth/react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Medication } from "@/components/medication/MedicationForm";
 import axios from "axios";
-
-export function capitalizeFirstLetter(str: string): string {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
+import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
+import { format, parse } from "date-fns";
 
 export default function Account() {
   const { data: session, status } = useSession({ required: true });
   const [medications, setMedications] = useState<Medication[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userData, setUserData] = useState({
+  const [showOptionsMenu, setShowOptionsMenu] = useState(false);
+  const [userProfile, setUserProfile] = useState({
     phone: "",
     isEditingPhone: false,
   });
-  const [showOptionsMenu, setShowOptionsMenu] = useState(false);
 
-  const { phone, isEditingPhone } = userData;
+  const { phone, isEditingPhone } = userProfile;
+  const optionsMenuRef = useRef<HTMLDivElement>(null);
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUserData((prevData) => ({
+    setUserProfile((prevData) => ({
       ...prevData,
       phone: e.target.value,
     }));
@@ -30,11 +29,9 @@ export default function Account() {
 
   const handlePhoneSubmit = async () => {
     try {
-      await axios.put("/api/user", { email: session?.user?.email, phone });
+      await axios.patch("/api/user", { email: session?.user?.email, phone });
       console.log("Phone number saved successfully");
-      setShowOptionsMenu(false);
-      sessionStorage.setItem("phone", phone);
-      setUserData((prevData) => ({
+      setUserProfile((prevData) => ({
         ...prevData,
         isEditingPhone: false,
       }));
@@ -44,18 +41,15 @@ export default function Account() {
   };
 
   const handleEditPhone = () => {
-    setShowOptionsMenu(false);
-    setUserData((prevData) => ({
+    setUserProfile((prevData) => ({
       ...prevData,
       isEditingPhone: true,
     }));
   };
 
   const handleCancelEditPhone = () => {
-    setShowOptionsMenu(false);
-    setUserData((prevData) => ({
+    setUserProfile((prevData) => ({
       ...prevData,
-      phone: sessionStorage.getItem("phone") || "",
       isEditingPhone: false,
     }));
   };
@@ -63,6 +57,15 @@ export default function Account() {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       handlePhoneSubmit();
+    }
+  };
+
+  const handleClickOutsideMenu = (e: MouseEvent) => {
+    if (
+      optionsMenuRef.current &&
+      !optionsMenuRef.current.contains(e.target as Node)
+    ) {
+      setShowOptionsMenu(false);
     }
   };
 
@@ -81,20 +84,14 @@ export default function Account() {
 
     const fetchUserPhone = async () => {
       try {
-        const storedPhone = sessionStorage.getItem("phone");
-        if (storedPhone) {
-          setUserData((prevData) => ({
-            ...prevData,
-            phone: storedPhone,
-          }));
-        } else {
-          const response = await axios.get("/api/user");
-          const [user] = response.data;
-          setUserData((prevData) => ({
-            ...prevData,
-            phone: user?.phone || "",
-          }));
-        }
+        const response = await axios.get("/api/user", {
+          params: { email: session?.user?.email },
+        });
+        const user = response.data;
+        setUserProfile((prevData) => ({
+          ...prevData,
+          phone: user?.phone || "",
+        }));
       } catch (error) {
         console.error("Error fetching user phone number:", error);
       }
@@ -102,17 +99,37 @@ export default function Account() {
 
     getUserMedications();
     fetchUserPhone();
-  }, []);
+
+    document.addEventListener("click", handleClickOutsideMenu);
+
+    return () => {
+      document.removeEventListener("click", handleClickOutsideMenu);
+    };
+  }, [session]);
 
   return (
-    <>
+    <div className="bg-gray-dark">
       {status === "authenticated" && (
-        <section className="flex flex-col items-center justify-center min-h-screen">
-          <p>Welcome back {session?.user?.name}!</p>
-          <div className="flex items-center">
+        <section className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-20 sm:py-24 lg:py-24 animate-fade-in-up min-h-screen flex flex-col items-center justify-center">
+          <p className="text-xl font-semibold">
+            {phone
+              ? `Welcome back, ${session?.user?.name}!`
+              : `Welcome, ${session?.user?.name}!`}
+          </p>
+          <p className="text-lg">On time, every time.</p>
+          {!phone && (
+            <>
+              <p className="text-lg">On time, every time.</p>
+              <p className="text-md ">
+                By providing your phone number, you will be able to start
+                receiving text reminders.
+              </p>
+            </>
+          )}
+          <div className="flex items-center mt-4">
             <p className="mr-2">Phone Number:</p>
             <input
-              className="text-white bg-black mr-2"
+              className="text-black bg-white p-2 border border-gray-300 rounded"
               type="text"
               value={phone}
               onChange={handlePhoneChange}
@@ -122,13 +139,15 @@ export default function Account() {
                 userSelect: isEditingPhone ? "text" : "none",
               }}
             />
-            <div className="relative">
+            <div className="relative" ref={optionsMenuRef}>
               <button
                 onClick={() => setShowOptionsMenu(!showOptionsMenu)}
-                className="ml-1"
+                className="p-2 hover:border-teal-500 relative"
               >
-                &#8942;
+                <span className="absolute inset-0 border-2 border-transparent hover:border-teal-500"></span>
+                &#8943;
               </button>
+
               {showOptionsMenu && (
                 <div className="absolute top-full left-0 bg-white p-2 rounded border border-gray-300">
                   {!isEditingPhone && (
@@ -158,54 +177,79 @@ export default function Account() {
               )}
             </div>
           </div>
-          <Image
-            src={session?.user?.image ?? ""}
-            alt={`${session?.user?.name}'s profile picture`}
-            height={100}
-            width={100}
-            className="rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
-          />
+          <div className="mt-4">
+            <Image
+              src={session?.user?.image ?? ""}
+              alt={`${session?.user?.name}'s profile picture`}
+              height={100}
+              width={100}
+              className="border-4 border-teal-500 rounded-full "
+            />
+          </div>
+
           {loading ? (
             <p>Loading medications...</p>
           ) : (
             <>
               {medications.length > 0 ? (
-                <table>
+                <table className="mt-4 border border-gray-300">
                   <thead>
                     <tr>
-                      <th>Medicine</th>
-                      <th>Dose</th>
-                      <th>Dose Unit</th>
-                      <th>Log Window: (Start)</th>
-                      <th>Log Window: (End)</th>
+                      <th className="p-2 font-medium">Medicine</th>
+                      <th className="p-2 font-medium">Dose</th>
+                      <th className="p-2 font-medium">Log Window (Start)</th>
+                      <th className="p-2 font-medium">Log Window (End)</th>
                     </tr>
                   </thead>
                   <tbody>
                     {medications.map((medication) => (
-                      <tr key={medication.name}>
-                        <td>{capitalizeFirstLetter(medication.name)}</td>
-                        <td>{medication.dose}</td>
-                        <td>{medication.doseUnit}</td>
-                        <td>{medication.logWindowStart}</td>
-                        <td>{medication.logWindowEnd}</td>
+                      <tr
+                        key={medication.name}
+                        className="border-t border-gray-300 text-center"
+                      >
+                        <td className="p-3">
+                          {capitalizeFirstLetter(medication.name)}
+                        </td>
+                        <td className="p-3 text-center">
+                          {`${medication.dose} ${medication.doseUnit}`}
+                        </td>
+                        <td className="p-3 text-center">
+                          {format(
+                            parse(
+                              medication.logWindowStart,
+                              "HH:mm:ss",
+                              new Date()
+                            ),
+                            "hh:mm a"
+                          )}
+                        </td>
+                        <td className="p-3 text-center">
+                          {format(
+                            parse(
+                              medication.logWindowEnd,
+                              "HH:mm:ss",
+                              new Date()
+                            ),
+                            "hh:mm a"
+                          )}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               ) : (
-                <p>No medications found</p>
+                <p className="mt-4">No medications found</p>
               )}
             </>
           )}
-          <button onClick={() => signOut()}>Sign Out</button>
         </section>
       )}
       {status !== "authenticated" && (
-        <div>
+        <div className="min-h-screen flex items-center justify-center">
           <p>You are not signed in</p>
         </div>
       )}
-    </>
+    </div>
   );
 }
 
