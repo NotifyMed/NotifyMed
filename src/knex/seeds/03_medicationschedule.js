@@ -6,7 +6,7 @@
    // Deletes ALL existing entries
    await knex("medicationschedule").del();
    await knex("medicationschedule").insert([
-     // { medication_id: 3, logWindowStart: "14:00:00", logWindowEnd: "20:30:00" },
+     { medication_id: 3, logWindowStart: "14:00:00", logWindowEnd: "20:30:00" },
      { medication_id: 4, logWindowStart: "14:00:00", logWindowEnd: "20:00:00" },
      { medication_id: 5, logWindowStart: "14:00:00", logWindowEnd: "20:30:00" },
      { medication_id: 6, logWindowStart: "14:00:00", logWindowEnd: "21:00:00" },

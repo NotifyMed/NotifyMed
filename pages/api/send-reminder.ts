@@ -1,6 +1,8 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import client from "../../twilio-client";
 import knex from "@/src/knex/knex";
+import { getSession } from "next-auth/react";
+import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
 
 export default async function sendReminder(
   req: NextApiRequest,
@@ -10,7 +12,14 @@ export default async function sendReminder(
 
   try {
     // Fetch all medication schedules
-    const medicationSchedules = await knex("medicationschedule").select();
+    const session = await getSession({ req });
+    //@ts-ignore
+    const userId = session?.user?.userId;
+
+    // Get the medication schedule associated with the user
+    const medicationSchedules = await knex("medicationschedule")
+      .where("user_id", userId)
+      .select();
 
     // Iterate over each medication schedule
     for (const schedule of medicationSchedules) {
@@ -32,16 +41,20 @@ export default async function sendReminder(
         .where("id", schedule.medication_id)
         .first();
 
-      // Get the user associated with the medication
+      // Get the user associated with the medication, including the phone number
       const user = await knex("users")
         .where("id", medication.user_id)
-        .select("email")
+        .select("name", "phone")
         .first();
 
       await client.messages.create({
-        body: `Hi ${user.email}, we've seen that you haven't taken your ${medication.name} yet. This is a text reminder from Notify Med.`,
+        body: `Hi ${
+          user.name
+        }, we've seen that you haven't taken your ${capitalizeFirstLetter(
+          medication.name
+        )} yet. This is a text reminder from Notify Med.`,
         from: process.env.TWILIO_PHONE_NUMBER,
-        to: process.env.TWILIO_SECRET ?? "",
+        to: user.phone,
       });
     }
 

@@ -1,5 +1,5 @@
 import { GetServerSidePropsContext } from "next";
-import { useSession, signOut, getSession } from "next-auth/react";
+import { useSession, getSession } from "next-auth/react";
 import Image from "next/image";
 import { useEffect, useState, useRef } from "react";
 import { Medication } from "@/components/medication/MedicationForm";
@@ -52,6 +52,7 @@ export default function Account() {
       ...prevData,
       isEditingPhone: false,
     }));
+    setShowOptionsMenu(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -116,7 +117,6 @@ export default function Account() {
               ? `Welcome back, ${session?.user?.name}!`
               : `Welcome, ${session?.user?.name}!`}
           </p>
-          <p className="text-lg">On time, every time.</p>
           {!phone && (
             <>
               <p className="text-lg">On time, every time.</p>
@@ -149,18 +149,18 @@ export default function Account() {
               </button>
 
               {showOptionsMenu && (
-                <div className="absolute top-full left-0 bg-white p-2 rounded border border-gray-300">
+                <div className="absolute top-full left-0 bg-white p-1 rounded border border-gray-300">
                   {!isEditingPhone && (
                     <button
                       onClick={handleEditPhone}
-                      className="text-black p-2 block w-full text-left"
+                      className="text-black p-1 block w-full text-left cursor-pointer"
                     >
                       Edit
                     </button>
                   )}
                   <button
                     onClick={handleCancelEditPhone}
-                    className="text-black p-2 block w-full text-left"
+                    className="text-black p-1 block w-full text-left cursor-pointer"
                   >
                     Cancel
                   </button>
@@ -168,7 +168,7 @@ export default function Account() {
                   {isEditingPhone && (
                     <button
                       onClick={handlePhoneSubmit}
-                      className="bg-white text-black p-2 block w-full text-left"
+                      className="bg-white text-black p-1 block w-full text-left cursor-pointer"
                     >
                       Save
                     </button>
@@ -253,9 +253,7 @@ export default function Account() {
   );
 }
 
-export const getServerSideProps = async (
-  context: GetServerSidePropsContext
-) => {
+export const getServerSideProps = async (context: GetServerSidePropsContext) => {
   const session = await getSession(context);
   if (!session) {
     return {
