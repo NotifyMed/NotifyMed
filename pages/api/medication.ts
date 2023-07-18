@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import knex from "@/src/knex/knex";
 import { authOptions } from "./auth/[...nextauth]";
 import { getSession } from "next-auth/react";
-import { capitalizeFirstLetter } from "../account";
+import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
 
 export default async function handler(
   req: NextApiRequest,

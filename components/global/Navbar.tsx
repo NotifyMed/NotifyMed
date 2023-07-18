@@ -15,8 +15,8 @@ const Navbar = () => {
     ...(session
       ? [
           {
-            name: "Dashboard",
-            href: "/dashboard",
+            name: "Account",
+            href: "/account",
             current: router.pathname === "/dashboard",
           },
           {
