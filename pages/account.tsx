@@ -2,12 +2,29 @@ import { GetServerSidePropsContext } from "next";
 import { useSession, getSession } from "next-auth/react";
 import Image from "next/image";
 import { useEffect, useState, useRef } from "react";
-import { Medication } from "@/components/medication/MedicationForm";
+import { useForm } from "react-hook-form";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { format, parse } from "date-fns";
 import axios from "axios";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
-import { format, parse } from "date-fns";
+import { Medication } from "@/components/medication/MedicationForm";
 
-export default function Account() {
+type Profile = {
+  phone: string;
+};
+
+interface AccountProps {
+  defaultValues?: Profile;
+}
+const phoneRegExp =
+  /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
+
+const schema = yup.object().shape({
+  phone: yup.string().matches(phoneRegExp, "Phone number is not valid"),
+});
+
+export default function Account({ defaultValues }: AccountProps) {
   const { data: session, status } = useSession({ required: true });
   const [medications, setMedications] = useState<Medication[]>([]);
   const [loading, setLoading] = useState(true);
@@ -20,6 +37,14 @@ export default function Account() {
   const { phone, isEditingPhone } = userProfile;
   const optionsMenuRef = useRef<HTMLDivElement>(null);
 
+  const {
+    handleSubmit,
+    formState: { errors },
+  } = useForm<Profile>({
+    resolver: yupResolver(schema),
+    defaultValues,
+  });
+
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUserProfile((prevData) => ({
       ...prevData,
@@ -27,7 +52,7 @@ export default function Account() {
     }));
   };
 
-  const handlePhoneSubmit = async () => {
+  const handleFormSubmit = async () => {
     try {
       await axios.patch("/api/user", { email: session?.user?.email, phone });
       console.log("Phone number saved successfully");
@@ -57,7 +82,7 @@ export default function Account() {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      handlePhoneSubmit();
+      handleFormSubmit();
     }
   };
 
@@ -127,18 +152,22 @@ export default function Account() {
             </>
           )}
           <div className="flex items-center mt-4">
-            <p className="mr-2">Phone Number:</p>
-            <input
-              className="text-black bg-white p-2 border border-gray-300 rounded"
-              type="text"
-              value={phone}
-              onChange={handlePhoneChange}
-              onKeyDown={handleKeyDown}
-              readOnly={!isEditingPhone}
-              style={{
-                userSelect: isEditingPhone ? "text" : "none",
-              }}
-            />
+            <form onSubmit={handleSubmit(handleFormSubmit)}>
+              <label className="text-white font-medium">
+                Phone Number:
+                <input
+                  className="ml-2 text-black bg-white p-2 border border-gray-300 rounded"
+                  type="text"
+                  value={phone}
+                  onChange={handlePhoneChange}
+                  onKeyDown={handleKeyDown}
+                  readOnly={!isEditingPhone}
+                  style={{
+                    userSelect: isEditingPhone ? "text" : "none",
+                  }}
+                />
+              </label>
+            </form>
             <div className="relative" ref={optionsMenuRef}>
               <button
                 onClick={() => setShowOptionsMenu(!showOptionsMenu)}
@@ -167,7 +196,7 @@ export default function Account() {
 
                   {isEditingPhone && (
                     <button
-                      onClick={handlePhoneSubmit}
+                      onClick={handleFormSubmit}
                       className="bg-white text-black p-1 block w-full text-left cursor-pointer"
                     >
                       Save
