@@ -27,14 +27,9 @@ const Navbar = () => {
         ]
       : [
           {
-            name: "About",
-            href: "/about",
-            current: router.pathname === "#",
-          },
-          {
             name: "How It Works",
-            href: "/how-it-works",
-            current: router.pathname === "#",
+            href: "/#how-it-works",
+            current: false,
           },
         ]),
   ];
