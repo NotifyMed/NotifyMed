@@ -9,14 +9,14 @@ export default function ScrollTextAnimation() {
   });
 
   const text =
-    "Never miss a medication again. With our simple and easy to use application, you'll be able to keep track of all of your medications in one place. All you need to get started is your gmail account and your phone. It's time to get notified. Want to find out more? We've laid out our five step process below.";
+    "With our simple and easy to use application, you'll be able to keep track of all of your medications in one place. You'll be one step closer to never forgetting to take your medicine again. All you need to get started is your gmail account and your phone. It's time to get notified. Want to find out more? We've laid out our five step process below.";
 
   const words = text.split(" ");
 
   return (
     <>
       <motion.div
-        className="min-h-[150vh] bg-black p-10 sm:p-10 lg:p-56"
+        className="min-h-[150vh] bg-gray-dark p-10 sm:p-10 lg:p-56"
         ref={scrollContainerRef}
       >
         <p className="sticky top-0 py-20 text-5xl font-bold leading-tight text-white">
