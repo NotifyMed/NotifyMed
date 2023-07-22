@@ -5,28 +5,45 @@ import * as yup from "yup";
 import { Combobox, Transition } from "@headlessui/react";
 import { HiOutlineCheck } from "react-icons/hi";
 import axios from "axios";
+import AddNewMedicationForm from "./AddNewMedicationForm";
 
-export type Medication = {
-  action: string;
-  id: number;
-  medicationId: number;
+export type NewMedication = {
+  id?: number;
   name: string;
   dose: number;
   doseUnit: string;
+};
+
+export type Medication = {
+  action?: string;
+  id?: number;
+  userID?: number;
+  name: string;
+  dose: number;
+  doseUnit: string;
+  dateTaken: Date;
+};
+
+export type MedicationSchedule = {
+  medication: Medication;
   logWindowStart: string;
   logWindowEnd: string;
-  date: Date;
-  time: string;
+  dateTaken: Date;
 };
 
 const schema = yup.object().shape({
-  medicationId: yup.string().required(),
-  date: yup.date().required(),
-  time: yup.string().required(),
-  dose: yup.number().required(),
-  doseUnit: yup.string().required(),
-  logWindowStart: yup.string().required(),
-  logWindowEnd: yup.string().required(),
+  name: yup.string().required("Medication name is required"),
+  dateTaken: yup.date().required("The date and time is required"),
+  time: yup.string().required("The date and time is required"),
+  dose: yup
+    .number()
+    .required("Dose is required")
+    .positive("Dose must be positive"),
+  doseUnit: yup.string().required("Dose Unit is required"),
+  logWindowStart: yup
+    .string()
+    .required("The start of your log window is required"),
+  logWindowEnd: yup.string().required("The end of your log window is required"),
 });
 
 interface MedicationFormProps {
@@ -41,6 +58,8 @@ export const MedicationForm = ({
   const [availableMedication, setAvailableMedication] = useState<Medication[]>(
     []
   );
+  const [selectedMedication, setSelectedMedication] =
+    useState<Medication | null>(null);
   const [showAddNewMedicine, setShowAddNewMedicine] = useState(false);
   const [query, setQuery] = useState("");
 
@@ -69,6 +88,7 @@ export const MedicationForm = ({
     try {
       const response = await axios.get("/api/medication");
       const data = response.data;
+      console.log(data);
       setAvailableMedication(data);
     } catch (error) {
       console.error(error);
@@ -91,6 +111,26 @@ export const MedicationForm = ({
     onSubmit(data);
   };
 
+  // console.log(session)
+
+  async function handleAddNewMedication(newMedication: NewMedication) {
+    try {
+      const response = await axios.get("/api/medication");
+      const data = response.data;
+
+      setAvailableMedication(data);
+
+      const newlyAddedMedication = data.find(
+        (el: Medication) => el.id == newMedication.id
+      );
+      setSelectedMedication(newlyAddedMedication);
+    } catch (error) {
+      console.error(error);
+    }
+
+    setShowAddNewMedicine(false);
+  }
+
   useEffect(() => {
     getAvailableMedication();
     reset(defaultValues);
@@ -102,89 +142,37 @@ export const MedicationForm = ({
       setShowAddNewMedicine(true);
     } else {
       const selectedMedication = availableMedication.find(
-        (medication) => medication.id
+        (medication) => medication.name
       );
-      reset({ ...defaultValues, medicationId: selectedMedication?.id });
+      reset({ ...defaultValues, name: selectedMedication?.name });
       setShowAddNewMedicine(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)}>
-      {showAddNewMedicine ? (
-        <>
-          <label className="text-white font-medium ">
-            Name:
-            <input
-              type="text"
-              className="ml-2 text-base font-normal text-gray-900"
-              {...register("name", { required: true })}
-            />
-            {errors.name && (
-              <span className="block">This field is required</span>
-            )}
-          </label>
-          <br />
-          <label className="text-base font-medium text-white">
-            Dose:
-            <input
-              type="number"
-              className="ml-2 text-base font-normal text-gray-900"
-              {...register("dose", { required: true })}
-            />
-            {errors.dose && (
-              <span className="block">This field is required</span>
-            )}
-          </label>
-          <br />
-          <label className="text-base font-medium text-white">
-            Dose Unit:
-            <input
-              type="text"
-              className="ml-2 text-base font-normal text-gray-900"
-              {...register("doseUnit", { required: true })}
-            />
-            {errors.doseUnit && (
-              <span className="block">This field is required</span>
-            )}
-          </label>
-          <br />
-          <label className="text-base font-medium text-white">
-            Log Time (Start):
-            <input
-              type="time"
-              className="ml-2 text-base font-normal text-gray-900"
-              {...register("logWindowStart", { required: true })}
-            />
-            {errors.logWindowStart && (
-              <span className="block">This field is required</span>
-            )}
-          </label>
-          <br />
-          <label className="text-base font-medium text-white">
-            Log Time (End):
-            <input
-              type="time"
-              className="ml-2 text-base font-normal text-gray-900"
-              {...register("logWindowEnd", { required: true })}
-            />
-            {errors.logWindowEnd && (
-              <span className="block">This field is required</span>
-            )}
-          </label>
-          <br />
-        </>
-      ) : (
-        <>
-          <label className="text-base font-medium text-white">
+    <div>
+      {showAddNewMedicine && (
+        <AddNewMedicationForm
+          handleAddNewMedication={handleAddNewMedication}
+          toggleAddNewMedicine={toggleAddNewMedicine}
+        />
+      )}
+      <form onSubmit={handleSubmit(handleFormSubmit)}>
+        <div className="flex flex-col space-y-5">
+          <label className="text-base font-medium text-white ">
             Medication:
-            <Combobox>
+            <Combobox
+              value={selectedMedication}
+              onChange={setSelectedMedication}
+            >
               <div className="relative mt-1">
                 <div className="relative w-full cursor-default overflow-hidden rounded-lg bg-white text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm">
                   <Combobox.Input
                     className="w-full border-none py-2 pl-3 pr-10 text-sm leading-5 text-gray-900  focus:ring-0"
                     placeholder="Find or add new medicine"
-                    displayValue={(medication: Medication) => medication.name}
+                    displayValue={(medication: Medication) =>
+                      medication ? medication.name : ""
+                    }
                     onChange={(event) => setQuery(event.target.value)}
                   />
                   <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
@@ -192,13 +180,14 @@ export const MedicationForm = ({
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
-                      stroke-width="1.5"
+                      strokeWidth="1.5"
                       stroke="currentColor"
                       className="w-6 h-6"
+                      color="black"
                     >
                       <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                         d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9"
                       />
                     </svg>
@@ -280,54 +269,42 @@ export const MedicationForm = ({
                 </Transition>
               </div>
             </Combobox>
-            {errors.medicationId && (
-              <span className="block">This field is required</span>
-            )}
           </label>
-          <br />
           <label className="text-base font-medium text-white">
             Date Taken:
             <input
               type="date"
-              className="ml-2 text-base font-normal text-gray-900"
-              {...register("date", { required: true })}
+              className="ml-2 text-base font-normal text-gray-900 w-1/2 p-1 rounded-lg"
+              {...register("dateTaken", { required: true })}
             />
-            {errors.date && (
+            {errors.dateTaken && (
               <span className="block">This field is required</span>
             )}
           </label>
-          <br />
           <label className="text-base font-medium text-white">
             Time Taken:
             <input
               type="time"
-              className="ml-2 text-base font-normal text-gray-900"
-              {...register("time", { required: true })}
+              className="ml-2 text-base font-normal text-gray-900 w-1/2 p-1 rounded-lg"
+              {...register("dateTaken", { required: true })}
             />
-            {errors.time && (
+            {errors.dateTaken && (
               <span className="block">This field is required</span>
             )}
           </label>
           <br />
-        </>
-      )}
-      <div className="flex justify-end">
-        {showAddNewMedicine && (
-          <button
-            type="button"
-            className="text-teal-600 hover:text-white py-2 px-4 mb-4 rounded"
-            onClick={toggleAddNewMedicine}
-          >
-            Cancel
-          </button>
-        )}
-        <button
-          type="submit"
-          className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 mb-4 rounded"
-        >
-          {showAddNewMedicine ? "Save Medicine" : "Log Medicine"}
-        </button>
-      </div>
-    </form>
+        </div>
+        <div className="flex justify-end">
+          <div>
+            <button
+              type="submit"
+              className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 mb-4 rounded"
+            >
+              Log Medicine
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
   );
 };

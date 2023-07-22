@@ -36,17 +36,32 @@ function handlePostMedication(req: NextApiRequest, res: NextApiResponse) {
   }
 }
 
+function handleGetMedication(req: NextApiRequest, res: NextApiResponse) {
+  switch (req.body.action) {
+    case "GET_MEDICATION_SCHEDULE":
+      return getMedicationSchedule(req, res);
+    default:
+      return getMedication(req, res);
+  }
+}
+
 async function addMedication(req: NextApiRequest, res: NextApiResponse) {
+  console.log(req.body);
+  const session = await getServerSession(req, res, authOptions);
+  console.log(session);
+
   try {
     let knexResponse = await knex("medications")
       .insert({
-        name: capitalizeFirstLetter(req.body.name),
-        dose: req.body.dose,
-        doseUnit: req.body.doseUnit,
+        name: capitalizeFirstLetter(req.body.medication.name),
+        dose: req.body.medication.dose,
+        doseUnit: req.body.medication.doseUnit,
+        user_id: session?.user?.userId,
       })
       .returning("*");
     return res.status(200).json(knexResponse);
   } catch (e) {
+    console.log(e);
     return res.status(400).json({ error: e });
   }
 }
@@ -95,18 +110,20 @@ async function addMedicationSchedule(
   }
 }
 
-async function getMedication(req: NextApiRequest, res: NextApiResponse) {
+async function getMedicationSchedule(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   try {
     const session = await getSession({ req });
     if (!session) {
       return res.status(403).json({ error: "Permission denied" });
     }
 
-    //@ts-ignore
-    const userId = session.user.userId;
+    const userId = session?.user?.userId;
 
     let id = req.query.id;
-    let knexResponse = await knex("medications")
+    let knexResponse = await knex("medications as medications")
       .join(
         "medicationschedule",
         "medications.id",
@@ -114,6 +131,7 @@ async function getMedication(req: NextApiRequest, res: NextApiResponse) {
       )
       .select(
         "medications.id",
+        "medications.user_id",
         "medications.name",
         "medications.dose",
         "medications.doseUnit",
@@ -125,14 +143,37 @@ async function getMedication(req: NextApiRequest, res: NextApiResponse) {
         qb.where("medications.isDeleted", false);
         qb.where("medications.user_id", userId);
       });
+    console.log(knexResponse);
 
     return res.status(200).json(knexResponse);
   } catch (e) {
     return res.status(400).json({ error: e });
   }
 }
+async function getMedication(req: NextApiRequest, res: NextApiResponse) {
+  try {
+    const session = await getSession({ req });
+    if (!session) {
+      return res.status(403).json({ error: "Permission denied" });
+    }
 
+    const userId = session?.user?.userId;
 
+    let id = req.query.id;
+    let knexResponse = await knex("medications")
+      .select("id", "user_id", "name", "dose", "doseUnit")
+      .where((qb) => {
+        id && qb.where("id", id);
+        qb.where("isDeleted", false);
+        qb.where("user_id", userId);
+      });
+    console.log(knexResponse);
+
+    return res.status(200).json(knexResponse);
+  } catch (e) {
+    return res.status(400).json({ error: e });
+  }
+}
 
 async function deleteMedication(req: NextApiRequest, res: NextApiResponse) {
   try {

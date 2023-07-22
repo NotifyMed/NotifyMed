@@ -8,7 +8,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { format, parse } from "date-fns";
 import axios from "axios";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
-import { Medication } from "@/components/medication/MedicationForm";
+import { Medication } from "@/components/medication/LogMedicationForm";
 
 type Profile = {
   phone: string;

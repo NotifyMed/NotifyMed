@@ -3,7 +3,7 @@ import { format, startOfMonth } from "date-fns";
 import { BsPencil, BsTrash } from "react-icons/bs";
 
 import { MonthlyNav } from "./MonthlyNav";
-import { Medication } from "../medication/MedicationForm";
+import { Medication } from "../medication/LogMedicationForm";
 
 import {
   MonthlyBody,
