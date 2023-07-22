@@ -19,7 +19,7 @@ interface MedicationInfoProps {
 
 function MedicationInfo({ medication, onEdit, onDelete }: MedicationInfoProps) {
   const formattedTime = format(
-    new Date(`01/01/2000 ${medication.time}`),
+    new Date(`01/01/2000 ${medication.timeTaken}`),
     "h:mma"
   );
 
@@ -74,11 +74,11 @@ function MedicationCalendar({
 
   const medicationsWithDates =
     medications
-      ?.filter((medication) => medication.date?.getTime())
-      .map(({ time, ...medication }) => ({
+      ?.filter((medication) => medication.dateTaken?.getTime())
+      .map(({ timeTaken, ...medication }) => ({
         ...medication,
-        date: new Date(`${medication.date?.toDateString()} ${time}`),
-        time: time.replace(/:\d{2}(\D*)$/, "$1"),
+        date: new Date(`${medication.dateTaken?.toDateString()} ${timeTaken}`),
+        time: timeTaken.replace(/:\d{2}(\D*)$/, "$1"),
       }))
       .sort(
         (a, b) =>

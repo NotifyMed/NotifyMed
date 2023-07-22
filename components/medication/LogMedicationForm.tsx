@@ -22,6 +22,7 @@ export type Medication = {
   dose: number;
   doseUnit: string;
   dateTaken: Date;
+  timeTaken: string;
 };
 
 export type MedicationSchedule = {
@@ -29,6 +30,7 @@ export type MedicationSchedule = {
   logWindowStart: string;
   logWindowEnd: string;
   dateTaken: Date;
+  timeTaken: string;
 };
 
 const schema = yup.object().shape({
@@ -286,9 +288,9 @@ export const MedicationForm = ({
             <input
               type="time"
               className="ml-2 text-base font-normal text-gray-900 w-1/2 p-1 rounded-lg"
-              {...register("dateTaken", { required: true })}
+              {...register("timeTaken", { required: true })}
             />
-            {errors.dateTaken && (
+            {errors.timeTaken && (
               <span className="block">This field is required</span>
             )}
           </label>
