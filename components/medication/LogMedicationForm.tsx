@@ -23,6 +23,8 @@ export type Medication = {
   doseUnit: string;
   dateTaken: Date;
   timeTaken: string;
+  logWindowStart?: string;
+  logWindowEnd?: string;
 };
 
 export type MedicationSchedule = {
