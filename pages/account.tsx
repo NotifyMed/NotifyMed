@@ -8,7 +8,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { format, parse } from "date-fns";
 import axios from "axios";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
-import { Medication } from "@/components/medication/MedicationForm";
+import { Medication } from "@/components/medication/LogMedicationForm";
 
 type Profile = {
   phone: string;
@@ -243,24 +243,28 @@ export default function Account({ defaultValues }: AccountProps) {
                           {`${medication.dose} ${medication.doseUnit}`}
                         </td>
                         <td className="p-3 text-center">
-                          {format(
-                            parse(
-                              medication.logWindowStart,
-                              "HH:mm:ss",
-                              new Date()
-                            ),
-                            "hh:mm a"
-                          )}
+                          {medication.logWindowStart
+                            ? format(
+                                parse(
+                                  medication.logWindowStart,
+                                  "HH:mm:ss",
+                                  new Date()
+                                ),
+                                "hh:mm a"
+                              )
+                            : "N/A"}
                         </td>
                         <td className="p-3 text-center">
-                          {format(
-                            parse(
-                              medication.logWindowEnd,
-                              "HH:mm:ss",
-                              new Date()
-                            ),
-                            "hh:mm a"
-                          )}
+                          {medication.logWindowEnd
+                            ? format(
+                                parse(
+                                  medication.logWindowEnd,
+                                  "HH:mm:ss",
+                                  new Date()
+                                ),
+                                "hh:mm a"
+                              )
+                            : "N/A"}
                         </td>
                       </tr>
                     ))}

@@ -39,16 +39,16 @@
    ]);
  };
 
- // DROP tables
- /**
-  * @param { import("knex").Knex } knex
-  * @returns { Promise<void> }
-  */
- exports.down = function (knex) {
-   return Promise.all([
-     knex.schema.dropTableIfExists("medicationschedule"),
-     knex.schema.dropTableIfExists("medicationLog"),
-     knex.schema.dropTableIfExists("medications"),
-     knex.schema.dropTableIfExists("users"),
-   ]);
- };
+// DROP tables
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+exports.down = function (knex) {
+  return Promise.all([
+    knex.schema.dropTableIfExists("medicationschedule"),
+    knex.schema.dropTableIfExists("medicationLog"),
+    knex.schema.dropTableIfExists("medications"),
+    knex.schema.dropTableIfExists("users"),
+  ]);
+};

@@ -1,20 +1,20 @@
 import { GetServerSidePropsContext } from "next";
 import { getSession } from "next-auth/react";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Head from "next/head";
 
 import {
   Medication,
   MedicationForm,
-} from "@/components/medication/MedicationForm";
+} from "@/components/medication/LogMedicationForm";
 
 import MedicationCalendar from "@/components/calendar/MedicationCalendar";
 
 function MedicationSchedule() {
   const [medications, setMedications] = useState<Medication[]>([]);
 
-  const handleAddMedication = (medication: Medication) => {
+  const handleLogMedication = (medication: Medication) => {
     setMedications([
       ...medications,
       { ...medication, logWindowStart: "", logWindowEnd: "" },
@@ -24,7 +24,11 @@ function MedicationSchedule() {
     setMedications((prevMedications) =>
       prevMedications.map((prevMedication) =>
         prevMedication.name === medication.name
-          ? { ...prevMedication, date: medication.date, time: medication.time }
+          ? {
+              ...prevMedication,
+              date: medication.dateTaken,
+              time: medication.dateTaken,
+            }
           : prevMedication
       )
     );
@@ -35,8 +39,9 @@ function MedicationSchedule() {
       prevMedications.filter((prevMedication) => {
         return (
           prevMedication.name === medication.name &&
-          prevMedication.date.getTime() === medication.date.getTime() &&
-          prevMedication.time === medication.time
+          prevMedication?.dateTaken?.getTime() ===
+            medication?.dateTaken?.getTime() &&
+          prevMedication.dateTaken === medication.dateTaken
         );
       })
     );
@@ -60,14 +65,10 @@ function MedicationSchedule() {
           Medication Schedule
         </h1>
         <div className="flex flex-col md:flex-row space-x-4">
-          <div className="w-full md:w-1/2">
-            <MedicationForm
-              onSubmit={function (data: Medication): void {
-                throw new Error("Function not implemented.");
-              }}
-            />
+          <div className="w-full md:w-5/12">
+            <MedicationForm onSubmit={handleLogMedication} />
           </div>
-          <div className="w-full md:w-1/2">
+          <div className="w-full md:w-7/12">
             <MedicationCalendar
               medications={medications}
               onEdit={handleEditMedication}
