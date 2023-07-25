@@ -1,14 +1,22 @@
+import Image from "next/image";
 import { GetServerSidePropsContext } from "next";
 import { useSession, getSession } from "next-auth/react";
-import Image from "next/image";
-import { useEffect, useState, useRef } from "react";
-import { useForm } from "react-hook-form";
-import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { format, parse } from "date-fns";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
+import * as yup from "yup";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import useSWR from "swr";
+
+import { Medication } from "@/types/medicationTypes";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
-import { Medication } from "@/components/medication/LogMedicationForm";
+import { format, parse } from "date-fns";
+
+interface ApiResponse {
+  id: number;
+  email: string;
+  phone: string;
+}
 
 type Profile = {
   phone: string;
@@ -17,73 +25,37 @@ type Profile = {
 interface AccountProps {
   defaultValues?: Profile;
 }
+
 const phoneRegExp =
   /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
 
-const schema = yup.object().shape({
-  phone: yup.string().matches(phoneRegExp, "Phone number is not valid"),
-});
+//@ts-ignore
+const fetcher = (...args) => fetch(...args).then((res) => res.json());
 
 export default function Account({ defaultValues }: AccountProps) {
   const { data: session, status } = useSession({ required: true });
-  const [medications, setMedications] = useState<Medication[]>([]);
+  const { data, error, isLoading } = useSWR("/api/user/", fetcher);
+  const [userMedications, setUserMedications] = useState<Medication[]>([]);
   const [loading, setLoading] = useState(true);
   const [showOptionsMenu, setShowOptionsMenu] = useState(false);
-  const [userProfile, setUserProfile] = useState({
-    phone: "",
-    isEditingPhone: false,
-  });
-
-  const { phone, isEditingPhone } = userProfile;
+  const [editing, setEditing] = useState(false);
   const optionsMenuRef = useRef<HTMLDivElement>(null);
+  const [phoneNumber, setPhoneNumber] = useState("");
 
-  const {
-    handleSubmit,
-    formState: { errors },
-  } = useForm<Profile>({
-    resolver: yupResolver(schema),
-    defaultValues,
+  const schema = yup.object().shape({
+    phone: yup.string().matches(phoneRegExp, "Phone number is not valid"),
   });
-
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUserProfile((prevData) => ({
-      ...prevData,
-      phone: e.target.value,
-    }));
-  };
-
-  const handleFormSubmit = async () => {
-    try {
-      await axios.patch("/api/user", { email: session?.user?.email, phone });
-      console.log("Phone number saved successfully");
-      setUserProfile((prevData) => ({
-        ...prevData,
-        isEditingPhone: false,
-      }));
-    } catch (error) {
-      console.error("Error saving phone number:", error);
-    }
-  };
 
   const handleEditPhone = () => {
-    setUserProfile((prevData) => ({
-      ...prevData,
-      isEditingPhone: true,
-    }));
+    setShowOptionsMenu(false);
+    setPhoneNumber((prevPhone) => prevPhone || data.phone);
+    setEditing(true);
   };
 
   const handleCancelEditPhone = () => {
-    setUserProfile((prevData) => ({
-      ...prevData,
-      isEditingPhone: false,
-    }));
     setShowOptionsMenu(false);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      handleFormSubmit();
-    }
+    setPhoneNumber(data.phone);
+    setEditing(false);
   };
 
   const handleClickOutsideMenu = (e: MouseEvent) => {
@@ -95,12 +67,47 @@ export default function Account({ defaultValues }: AccountProps) {
     }
   };
 
+  console.log(session);
+
+  const {
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+    defaultValues,
+  });
+
+  const handleFormSubmit = async (data: any) => {
+    const userInfo = {
+      email: session?.user?.email,
+      phone: phoneNumber,
+    };
+
+    try {
+      const res = await axios.patch("/api/user", userInfo);
+      if (res.status === 200) {
+        console.log("Phone number saved successfully:", res.data);
+      }
+      console.log(userInfo.phone);
+    } catch (error) {
+      console.error("Error saving phone number:", error);
+    }
+  };
+
+  const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      setShowOptionsMenu(false);
+      await handleFormSubmit(data);
+    }
+  };
+
   useEffect(() => {
     const getUserMedications = async () => {
       try {
         const response = await axios.get("/api/medication");
         const data = response.data;
-        setMedications(data);
+        setUserMedications(data);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching medications:", error);
@@ -108,104 +115,43 @@ export default function Account({ defaultValues }: AccountProps) {
       }
     };
 
-    const fetchUserPhone = async () => {
-      try {
-        const response = await axios.get("/api/user", {
-          params: { email: session?.user?.email },
-        });
-        const user = response.data;
-        setUserProfile((prevData) => ({
-          ...prevData,
-          phone: user?.phone || "",
-        }));
-      } catch (error) {
-        console.error("Error fetching user phone number:", error);
-      }
-    };
-
     getUserMedications();
-    fetchUserPhone();
 
     document.addEventListener("click", handleClickOutsideMenu);
 
     return () => {
       document.removeEventListener("click", handleClickOutsideMenu);
     };
-  }, [session]);
+  }, []);
+
+  if (error)
+    return (
+      <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-20 sm:py-24 lg:py-24 animate-fade-in-up min-h-screen flex flex-col items-center justify-center">
+        Failed to load
+      </div>
+    );
+  if (isLoading)
+    return (
+      <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-20 sm:py-24 lg:py-24 animate-fade-in-up min-h-screen flex flex-col items-center justify-center">
+        Loading...
+      </div>
+    );
 
   return (
     <div className="bg-gray-dark">
       {status === "authenticated" && (
         <section className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-20 sm:py-24 lg:py-24 animate-fade-in-up min-h-screen flex flex-col items-center justify-center">
           <p className="text-xl font-semibold">
-            {phone
+            {data.phone
               ? `Welcome back, ${session?.user?.name}!`
               : `Welcome, ${session?.user?.name}!`}
           </p>
-          {!phone && (
-            <>
-              <p className="text-lg">On time, every time.</p>
-              <p className="text-md ">
-                By providing your phone number, you will be able to start
-                receiving text reminders.
-              </p>
-            </>
+          {!data.phone && (
+            <p className="text-md">
+              By providing your phone number, you will be able to start
+              receiving text reminders.
+            </p>
           )}
-          <div className="flex items-center mt-4">
-            <form onSubmit={handleSubmit(handleFormSubmit)}>
-              <label className="text-white font-medium">
-                Phone Number:
-                <input
-                  className="ml-2 text-black bg-white p-2 border border-gray-300 rounded"
-                  type="text"
-                  value={phone}
-                  onChange={handlePhoneChange}
-                  onKeyDown={handleKeyDown}
-                  readOnly={!isEditingPhone}
-                  style={{
-                    userSelect: isEditingPhone ? "text" : "none",
-                  }}
-                />
-              </label>
-            </form>
-            <div className="relative" ref={optionsMenuRef}>
-              <button
-                onClick={() => setShowOptionsMenu(!showOptionsMenu)}
-                className="p-2 hover:border-teal-500 relative"
-              >
-                <span className="absolute inset-0 border-2 border-transparent hover:border-teal-500"></span>
-                &#8943;
-              </button>
-
-              {showOptionsMenu && (
-                <div className="absolute top-full left-0 bg-white p-1 rounded border border-gray-300">
-                  {!isEditingPhone && (
-                    <button
-                      onClick={handleEditPhone}
-                      className="text-black p-1 block w-full text-left cursor-pointer"
-                    >
-                      Edit
-                    </button>
-                  )}
-                  <button
-                    onClick={handleCancelEditPhone}
-                    className="text-black p-1 block w-full text-left cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-
-                  {isEditingPhone && (
-                    <button
-                      onClick={handleFormSubmit}
-                      className="bg-white text-black p-1 block w-full text-left cursor-pointer"
-                    >
-                      Save
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
           <div className="mt-4">
             <Image
               src={session?.user?.image ?? ""}
@@ -216,11 +162,69 @@ export default function Account({ defaultValues }: AccountProps) {
             />
           </div>
 
+          <form onSubmit={handleSubmit(handleFormSubmit)}>
+            <div className="flex items-center mt-4">
+              <label className="text-white font-medium" htmlFor="phone">
+                Phone:
+                {editing ? (
+                  <input
+                    className="ml-2 text-black bg-white p-2 border border-gray-300 rounded"
+                    type="text"
+                    id="phone"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                  />
+                ) : (
+                  <span className="ml-2 text-black bg-white p-2 border border-gray-300 rounded">
+                    {data.phone}
+                  </span>
+                )}
+              </label>
+              <div className="relative" ref={optionsMenuRef}>
+                <button
+                  onClick={() => setShowOptionsMenu(!showOptionsMenu)}
+                  className="p-2 hover:border-teal-500 relative"
+                >
+                  <span className="absolute inset-0 border-2 border-transparent hover:border-teal-500"></span>
+                  &#8943;
+                </button>
+
+                {showOptionsMenu && (
+                  <div className="absolute top-full left-0 bg-white p-1 rounded border border-gray-300">
+                    {!editing && (
+                      <button
+                        onClick={handleEditPhone}
+                        className="text-black p-1 block w-full text-left cursor-pointer"
+                      >
+                        Edit
+                      </button>
+                    )}
+                    <button
+                      onClick={handleCancelEditPhone}
+                      className="text-black p-1 block w-full text-left cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+
+                    {editing && (
+                      <button
+                        onClick={handleFormSubmit}
+                        className="bg-white text-black p-1 block w-full text-left cursor-pointer"
+                      >
+                        Save
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </form>
           {loading ? (
             <p>Loading medications...</p>
           ) : (
             <>
-              {medications.length > 0 ? (
+              {userMedications.length > 0 ? (
                 <table className="mt-4 border border-gray-300">
                   <thead>
                     <tr>
@@ -231,7 +235,7 @@ export default function Account({ defaultValues }: AccountProps) {
                     </tr>
                   </thead>
                   <tbody>
-                    {medications.map((medication) => (
+                    {userMedications.map((medication) => (
                       <tr
                         key={medication.name}
                         className="border-t border-gray-300 text-center"
@@ -286,7 +290,9 @@ export default function Account({ defaultValues }: AccountProps) {
   );
 }
 
-export const getServerSideProps = async (context: GetServerSidePropsContext) => {
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
   const session = await getSession(context);
   if (!session) {
     return {

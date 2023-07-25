@@ -53,12 +53,16 @@ async function getUser(req: NextApiRequest, res: NextApiResponse) {
 }
 
 async function updateUser(req: NextApiRequest, res: NextApiResponse) {
+  console.log(req.body.phone);
   try {
-    let knexResponse = await knex("users")
+    await knex("users")
       .where({ email: req.body.email })
       .update({ phone: req.body.phone })
       .returning("*");
-    return res.status(200).json(knexResponse);
+    return res
+
+      .status(200)
+      .json({ message: "Phone number updated successfully" });
   } catch (e) {
     return res.status(400).json({ error: e });
   }
