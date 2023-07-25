@@ -1,10 +1,9 @@
 import axios from "axios";
+import { getSession } from "next-auth/react";
+import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useForm } from "react-hook-form";
-import { NewMedication } from "./LogMedicationForm";
-import { MedicationSchedule } from "@/types/medicationTypes";
-import { getSession } from "next-auth/react";
+import { NewMedication, MedicationSchedule } from "@/types/medicationTypes";
 
 const schema = yup.object().shape({
   name: yup.string().required("Name is required"),
@@ -16,6 +15,8 @@ const schema = yup.object().shape({
   logWindowStart: yup.string().required("Log Window Start is required"),
   logWindowEnd: yup.string().required("Log Window End is required"),
 });
+
+const doseUnits = ["g", "mg", "ml", "l", "tbsp", "tsp", "capsule"];
 
 const AddNewMedicationForm = ({
   handleAddNewMedication,
@@ -40,9 +41,11 @@ const AddNewMedicationForm = ({
   });
 
   const onSubmit = async (data: any) => {
+    const doseValue = parseFloat(data.dose);
+
     const newMedication: NewMedication = {
       name: data.name,
-      dose: data.dose,
+      dose: doseValue,
       doseUnit: data.doseUnit,
     };
 
@@ -84,28 +87,34 @@ const AddNewMedicationForm = ({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="flex flex-col space-y-5">
-        <label htmlFor="">Name</label>
+      <div className="flex flex-col space-y-2">
+        <label htmlFor="Name">Name</label>
         <input
           type="text"
           id="name"
           {...register("name")}
           className="ml-2 text-base font-normal text-gray-900 w-1/2 p-1 rounded-lg"
         />
-        <label htmlFor="">Dose</label>
+        <label htmlFor="Dose">Dose</label>
         <input
           type="text"
           id="dose"
           {...register("dose")}
           className="ml-2 text-base font-normal text-gray-900 w-1/2 p-1 rounded-lg"
         />
-        <label htmlFor="">Dose Unit</label>
-        <input
-          type="text"
+        <label htmlFor="Dose Unit">Dose Unit</label>
+        <select
           id="doseUnit"
           {...register("doseUnit")}
           className="ml-2 text-base font-normal text-gray-900 w-1/2 p-1 rounded-lg"
-        />
+        >
+          {doseUnits.map((unit) => (
+            <option key={unit} value={unit}>
+              {unit}
+            </option>
+          ))}
+        </select>
+
         <label htmlFor="Log Window (Start)">Log Window (Start)</label>
         <input
           type="time"
