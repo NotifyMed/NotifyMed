@@ -78,6 +78,7 @@ function MedicationCalendar({
       .map(({ timeTaken, ...medication }) => ({
         ...medication,
         date: new Date(`${medication.dateTaken?.toDateString()} ${timeTaken}`),
+        //@ts-ignore
         time: timeTaken.replace(/:\d{2}(\D*)$/, "$1"),
       }))
       .sort(
