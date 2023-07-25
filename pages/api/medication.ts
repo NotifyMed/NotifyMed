@@ -31,7 +31,7 @@ function handlePostMedication(req: NextApiRequest, res: NextApiResponse) {
       return addMedication(req, res);
     case "ADD_MEDICATION_LOG":
       return addMedicationLog(req, res);
-    case "ADD_MEDICATION_SCHEDULE":
+    case "ADD_MEDICATION_WITH_SCHEDULE":
       return addMedicationSchedule(req, res);
   }
 }
@@ -96,16 +96,36 @@ async function addMedicationSchedule(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  const { medication, logWindowStart, logWindowEnd, userId } = req.body;
+
   try {
-    let knexResponse = await knex("medicationschedule")
+    let medicationResponse = await knex("medications")
       .insert({
-        medication_id: req.body.medication_id,
-        logWindowStart: req.body.logWindowStart,
-        logWindowEnd: req.body.logWindowEnd,
+        name: capitalizeFirstLetter(medication.name),
+        dose: medication.dose,
+        doseUnit: medication.doseUnit,
+        user_id: userId,
       })
       .returning("*");
-    return res.status(200).json(knexResponse);
+
+    const medicationId = medicationResponse[0].id;
+
+    let scheduleResponse = await knex("medicationschedule")
+      .insert({
+        user_id: userId,
+        medication_id: medicationId,
+        logWindowStart: logWindowStart,
+        logWindowEnd: logWindowEnd,
+      })
+      .returning("*");
+
+    console.log(res);
+    return res.status(200).json({
+      medication: medicationResponse[0],
+      schedule: scheduleResponse[0],
+    });
   } catch (e) {
+    console.log(e);
     return res.status(400).json({ error: e });
   }
 }

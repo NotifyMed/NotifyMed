@@ -22,6 +22,4 @@ export type MedicationSchedule = {
   medication: Medication;
   logWindowStart: string;
   logWindowEnd: string;
-  dateTaken: Date;
-  timeTaken: string;
 };

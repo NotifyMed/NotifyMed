@@ -3,11 +3,8 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { NewMedication } from "./LogMedicationForm";
-
-type AddNewMedicationFormProps = {
-  handleAddNewMedication: () => void;
-  toggleAddNewMedicine: () => void;
-};
+import { MedicationSchedule } from "@/types/medicationTypes";
+import { getSession } from "next-auth/react";
 
 const schema = yup.object().shape({
   name: yup.string().required("Name is required"),
@@ -16,6 +13,8 @@ const schema = yup.object().shape({
     .required("Dose is required")
     .positive("Dose must be positive"),
   doseUnit: yup.string().required("Dose Unit is required"),
+  logWindowStart: yup.string().required("Log Window Start is required"),
+  logWindowEnd: yup.string().required("Log Window End is required"),
 });
 
 const AddNewMedicationForm = ({
@@ -34,9 +33,12 @@ const AddNewMedicationForm = ({
             name: "Advil",
             dose: "10",
             doseUnit: "mg",
+            logWindowStart: "12:00:00",
+            logWindowEnd: "12:00:00",
           }
         : {},
   });
+
   const onSubmit = async (data: any) => {
     const newMedication: NewMedication = {
       name: data.name,
@@ -44,13 +46,39 @@ const AddNewMedicationForm = ({
       doseUnit: data.doseUnit,
     };
 
-    const res = await axios.put("/api/medication", {
-      action: "ADD_MEDICATION",
-      medication: newMedication,
-    });
-    if (res.status == 200) {
-      console.log(res);
-      handleAddNewMedication({ ...newMedication, id: res.data[0].id });
+    const medicationSchedule: MedicationSchedule = {
+      medication: data.name,
+      logWindowStart: data.logWindowStart,
+      logWindowEnd: data.logWindowEnd,
+    };
+
+    try {
+      const session = await getSession();
+      if (!session) {
+        console.error("User not logged in.");
+        return;
+      }
+
+      const res = await axios.put("/api/medication", {
+        action: "ADD_MEDICATION_WITH_SCHEDULE",
+        userId: session?.user?.userId,
+        medication: newMedication,
+        logWindowStart: data.logWindowStart,
+        logWindowEnd: data.logWindowEnd,
+      });
+
+      if (res.status === 200) {
+        console.log(res);
+        handleAddNewMedication({
+          ...newMedication,
+          ...medicationSchedule,
+          id: res.data.medication.id,
+          logWindowStart: res.data.schedule.logWindowStart,
+          logWindowEnd: res.data.schedule.logWindowEnd,
+        });
+      }
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -76,6 +104,20 @@ const AddNewMedicationForm = ({
           type="text"
           id="doseUnit"
           {...register("doseUnit")}
+          className="ml-2 text-base font-normal text-gray-900 w-1/2 p-1 rounded-lg"
+        />
+        <label htmlFor="Log Window (Start)">Log Window (Start)</label>
+        <input
+          type="time"
+          id="logWindowStart"
+          {...register("logWindowStart")}
+          className="ml-2 text-base font-normal text-gray-900 w-1/2 p-1 rounded-lg"
+        />
+        <label htmlFor="Log Window (End)">Log Window (End)</label>
+        <input
+          type="time"
+          id="logWindowEnd"
+          {...register("logWindowEnd")}
           className="ml-2 text-base font-normal text-gray-900 w-1/2 p-1 rounded-lg"
         />
         <div className="flex justify-end">

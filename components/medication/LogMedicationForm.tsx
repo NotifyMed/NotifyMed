@@ -21,8 +21,8 @@ export type Medication = {
   name: string;
   dose: number;
   doseUnit: string;
-  dateTaken: Date;
-  timeTaken: string;
+  dateTaken?: Date;
+  timeTaken?: string;
   logWindowStart?: string;
   logWindowEnd?: string;
 };
@@ -31,8 +31,8 @@ export type MedicationSchedule = {
   medication: Medication;
   logWindowStart: string;
   logWindowEnd: string;
-  dateTaken: Date;
-  timeTaken: string;
+  dateTaken?: Date;
+  timeTaken?: string;
 };
 
 const schema = yup.object().shape({

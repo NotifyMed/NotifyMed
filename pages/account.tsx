@@ -12,11 +12,6 @@ import { Medication } from "@/types/medicationTypes";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
 import { format, parse } from "date-fns";
 
-interface ApiResponse {
-  id: number;
-  email: string;
-  phone: string;
-}
 
 type Profile = {
   phone: string;
