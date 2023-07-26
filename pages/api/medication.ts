@@ -13,7 +13,7 @@ export default async function handler(
   if (!session) return res.status(403).json({ error: "Permission denied" });
   switch (req.method) {
     case "PUT":
-      return handlePostMedication(req, res);
+      return handlePutMedication(req, res);
     case "GET":
       return getMedication(req, res);
     case "DELETE":
@@ -25,7 +25,7 @@ export default async function handler(
   }
 }
 
-function handlePostMedication(req: NextApiRequest, res: NextApiResponse) {
+function handlePutMedication(req: NextApiRequest, res: NextApiResponse) {
   switch (req.body.action) {
     case "ADD_MEDICATION":
       return addMedication(req, res);
@@ -79,15 +79,21 @@ async function updateMedication(req: NextApiRequest, res: NextApiResponse) {
 }
 
 async function addMedicationLog(req: NextApiRequest, res: NextApiResponse) {
+  console.log(req.body);
+  const session = await getServerSession(req, res, authOptions);
+  console.log(session);
+
   try {
     let knexResponse = await knex("medicationLog")
       .insert({
         medication_id: req.body.medicationId,
         dateTaken: req.body.date,
+        user_id: session?.user?.userId,
       })
       .returning("*");
     return res.status(200).json(knexResponse);
   } catch (e) {
+    console.log(e);
     return res.status(400).json({ error: e });
   }
 }

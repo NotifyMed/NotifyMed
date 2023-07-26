@@ -1,3 +1,11 @@
+export type LoggedMedication = {
+  medicationId: number;
+  userID?: number;
+  name: string;
+  dateTaken: Date;
+  timeTaken: string;
+};
+
 export type NewMedication = {
   id?: number;
   name: string;
