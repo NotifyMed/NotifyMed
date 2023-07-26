@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useRouter } from "next/router";
-import * as gtm from "lib/gtm";
+import * as gtm from "../lib/gtm";
 
 const useGoogleTagManager = () => {
   const router = useRouter();
