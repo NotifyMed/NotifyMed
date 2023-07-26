@@ -1,9 +1,7 @@
-import { useState } from "react";
-import { format, startOfMonth } from "date-fns";
-import { BsPencil, BsTrash } from "react-icons/bs";
-
+import { useEffect, useState } from "react";
 import { MonthlyNav } from "./MonthlyNav";
-import { Medication } from "../medication/LogMedicationForm";
+
+import { format, startOfMonth } from "date-fns";
 
 import {
   MonthlyBody,
@@ -11,63 +9,33 @@ import {
   MonthlyCalendar,
 } from "@zach.codes/react-calendar";
 
-interface MedicationInfoProps {
-  medication: Medication;
-  onEdit: (medication: Medication) => void;
-  onDelete: (medication: Medication) => void;
-}
+import { LoggedMedication } from "@/types/medicationTypes";
 
-function MedicationInfo({ medication, onEdit, onDelete }: MedicationInfoProps) {
+type MedicationInfoProps = {
+  loggedMedication: LoggedMedication;
+};
+
+function MedicationInfo({ loggedMedication }: MedicationInfoProps) {
   const formattedTime = format(
-    new Date(`01/01/2000 ${medication.timeTaken}`),
+    new Date(`01/01/2000 ${loggedMedication.timeTaken}`),
     "h:mma"
   );
 
-  const [isEditing, setIsEditing] = useState(false);
-
-  const handleEditClick = () => {
-    onEdit(medication);
-  };
-
-  const handleEditClose = () => {
-    setIsEditing(false);
-  };
-
-  const handleEditSubmit = (medication: Medication) => {
-    console.log("Updating medication list with edited medication:", medication);
-    onEdit(medication);
-    setIsEditing(false);
-  };
-
-  const handleDeleteClick = () => {
-    onDelete(medication);
-  };
-
   return (
     <>
-      <div>
-        <div className="flex justify-evenly">
-          <p>{medication.name}</p>
-          <p>{formattedTime}</p>
-          <BsPencil onClick={handleEditClick} />
-          <BsTrash onClick={handleDeleteClick} />
-        </div>
+      <div className="flex justify-between">
+        <p className="text-sm font-medium mr-2">{loggedMedication.name}</p>
+        <p className="text-sm font-medium mr-2">{formattedTime}</p>
       </div>
     </>
   );
 }
 
 type MedicationCalendarProps = {
-  medications: Medication[];
-  onEdit: (medication: Medication) => void;
-  onDelete: (medication: Medication) => void;
+  medications: LoggedMedication[];
 };
 
-function MedicationCalendar({
-  medications,
-  onEdit,
-  onDelete,
-}: MedicationCalendarProps) {
+function MedicationCalendar({ medications }: MedicationCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState<Date>(
     startOfMonth(new Date())
   );
@@ -75,24 +43,30 @@ function MedicationCalendar({
   const medicationsWithDates =
     medications
       ?.filter((medication) => medication.dateTaken?.getTime())
-      .map(({ timeTaken, ...medication }) => ({
-        ...medication,
-        date: new Date(`${medication.dateTaken?.toDateString()} ${timeTaken}`),
-        //@ts-ignore
-        time: timeTaken.replace(/:\d{2}(\D*)$/, "$1"),
-      }))
-      .sort(
-        (a, b) =>
-          Number(a.date) - Number(b.date) || a.time.localeCompare(b.time)
-      ) || [];
-
-  const handleEdit = (medication: Medication) => {
-    onEdit(medication);
-  };
-
-  const handleDelete = (medication: Medication) => {
-    onDelete(medication);
-  };
+      .map(({ timeTaken, ...medication }) => {
+        const [hours, minutes] = timeTaken
+          .split(":")
+          .map((str) => parseInt(str));
+        const medicationDate = new Date(
+          medication.dateTaken!.getFullYear(),
+          medication.dateTaken!.getMonth(),
+          medication.dateTaken!.getDate(),
+          hours,
+          minutes
+        );
+        return {
+          ...medication,
+          date: medicationDate,
+          time: `${timeTaken.slice(0, -3)}${timeTaken.slice(-3)}`,
+        };
+      })
+      .sort((a, b) => {
+        if (a.date < b.date) return -1;
+        if (a.date > b.date) return 1;
+        if (a.time < b.time) return -1;
+        if (a.time > b.time) return 1;
+        return 0;
+      }) || [];
 
   return (
     <>
@@ -100,24 +74,17 @@ function MedicationCalendar({
         currentMonth={currentMonth}
         onCurrentMonthChange={(date) => setCurrentMonth(date)}
       >
-        <div className="flex flex-col">
-          <MonthlyNav />
-          <div className="border-b-2 border-t-2 border-l-2 border-r-2 text-base font-normal text-gray-900">
-            <MonthlyBody events={medicationsWithDates}>
-              <MonthlyDay<Medication>
-                renderDay={(data) =>
-                  data.map((medication) => (
-                    <MedicationInfo
-                      key={medication.id}
-                      medication={medication}
-                      onEdit={handleEdit}
-                      onDelete={handleDelete}
-                    />
-                  ))
-                }
-              />
-            </MonthlyBody>
-          </div>
+        <MonthlyNav />
+        <div className="border-b-2 border-t-2 border-l-2 border-r-2 text-base font-normal text-gray-900">
+          <MonthlyBody events={medicationsWithDates}>
+            <MonthlyDay<LoggedMedication>
+              renderDay={(data) =>
+                data.map((medication, index) => (
+                  <MedicationInfo key={index} loggedMedication={medication} />
+                ))
+              }
+            />
+          </MonthlyBody>
         </div>
       </MonthlyCalendar>
     </>

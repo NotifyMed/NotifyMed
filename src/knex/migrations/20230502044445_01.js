@@ -26,6 +26,7 @@
      }),
      knex.schema.createTable("medicationLog", (table) => {
        table.increments("id").primary();
+       table.integer("user_id").references("id").inTable("users");
        table.integer("medication_id").references("id").inTable("medications");
        table.timestamp("dateTaken").defaultTo(knex.fn.now());
      }),

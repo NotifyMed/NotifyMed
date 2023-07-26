@@ -1,69 +1,39 @@
-import { useState, useEffect, Fragment } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import {
+  LoggedMedication,
+  Medication,
+  NewMedication,
+} from "@/types/medicationTypes";
+import axios from "axios";
+import { Fragment, useEffect, useState } from "react";
+import AddNewMedicationForm from "./AddNewMedicationForm";
 import { Combobox, Transition } from "@headlessui/react";
 import { HiOutlineCheck } from "react-icons/hi";
-import axios from "axios";
-import AddNewMedicationForm from "./AddNewMedicationForm";
-
-export type NewMedication = {
-  id?: number;
-  name: string;
-  dose: number;
-  doseUnit: string;
-};
-
-export type Medication = {
-  action?: string;
-  id?: number;
-  userID?: number;
-  name: string;
-  dose: number;
-  doseUnit: string;
-  dateTaken?: Date;
-  timeTaken?: string;
-  logWindowStart?: string;
-  logWindowEnd?: string;
-};
-
-export type MedicationSchedule = {
-  medication: Medication;
-  logWindowStart: string;
-  logWindowEnd: string;
-  dateTaken?: Date;
-  timeTaken?: string;
-};
+import { getSession } from "next-auth/react";
+import { setTime } from "@/utils/dateTimeUtility";
 
 const schema = yup.object().shape({
-  name: yup.string().required("Medication name is required"),
-  dateTaken: yup.date().required("The date and time is required"),
-  time: yup.string().required("The date and time is required"),
-  dose: yup
-    .number()
-    .required("Dose is required")
-    .positive("Dose must be positive"),
-  doseUnit: yup.string().required("Dose Unit is required"),
-  logWindowStart: yup
-    .string()
-    .required("The start of your log window is required"),
-  logWindowEnd: yup.string().required("The end of your log window is required"),
+  dateTaken: yup.string().required(),
+  timeTaken: yup.string().required(),
 });
 
-interface MedicationFormProps {
-  onSubmit: (data: Medication) => void;
-  defaultValues?: Medication;
-}
+type LogMedicationFormProps = {
+  logMedication: (medication: LoggedMedication) => void;
+  defaultValues?: LoggedMedication | undefined;
+};
 
-export const MedicationForm = ({
-  onSubmit,
+export const LogMedicationForm = ({
+  logMedication,
   defaultValues,
-}: MedicationFormProps) => {
+}: LogMedicationFormProps) => {
   const [availableMedication, setAvailableMedication] = useState<Medication[]>(
     []
   );
   const [selectedMedication, setSelectedMedication] =
     useState<Medication | null>(null);
+
   const [showAddNewMedicine, setShowAddNewMedicine] = useState(false);
   const [query, setQuery] = useState("");
 
@@ -78,16 +48,6 @@ export const MedicationForm = ({
     setShowAddNewMedicine(!showAddNewMedicine);
   };
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<Medication>({
-    resolver: yupResolver(schema),
-    defaultValues,
-  });
-
   const getAvailableMedication = async () => {
     try {
       const response = await axios.get("/api/medication");
@@ -99,23 +59,47 @@ export const MedicationForm = ({
     }
   };
 
-  const saveMedicationToDatabase = async (data: Medication) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<LoggedMedication>({
+    resolver: yupResolver(schema),
+    defaultValues,
+  });
+
+  const handleLogMedication = async (data: LoggedMedication) => {
+    const dateTaken = setTime(data.dateTaken, data.timeTaken);
+    console.log(dateTaken);
+
     try {
-      const response = await axios.post("/api/medication", data, {
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const medicationId = selectedMedication?.id;
+
+      if (!medicationId) {
+        console.error("No medication selected.");
+        return;
+      }
+
+      const session = await getSession();
+      if (!session) {
+        console.error("User not logged in.");
+        return;
+      }
+
+      const res = await axios.put("/api/medication", {
+        action: "ADD_MEDICATION_LOG",
+        userId: session?.user?.userId,
+        medicationId: medicationId,
+        date: dateTaken,
       });
+
+      logMedication(res.data);
+      console.log(res.data);
     } catch (error) {
       console.error(error);
     }
   };
-  const handleFormSubmit = async (data: Medication) => {
-    await saveMedicationToDatabase({ ...data, action: "ADD_MEDICATION_LOG" });
-    onSubmit(data);
-  };
-
-  // console.log(session)
 
   async function handleAddNewMedication(newMedication: NewMedication) {
     try {
@@ -146,7 +130,7 @@ export const MedicationForm = ({
       setShowAddNewMedicine(true);
     } else {
       const selectedMedication = availableMedication.find(
-        (medication) => medication.name
+        (medication) => medication.name === value
       );
       reset({ ...defaultValues, name: selectedMedication?.name });
       setShowAddNewMedicine(false);
@@ -161,9 +145,10 @@ export const MedicationForm = ({
           toggleAddNewMedicine={toggleAddNewMedicine}
         />
       )}
-      <form onSubmit={handleSubmit(handleFormSubmit)}>
+
+      <form onSubmit={handleSubmit(handleLogMedication)}>
         <div className="flex flex-col space-y-5">
-          <label className="text-base font-medium text-white ">
+          <label htmlFor="Medication">
             Medication:
             <Combobox
               value={selectedMedication}
@@ -273,24 +258,30 @@ export const MedicationForm = ({
                 </Transition>
               </div>
             </Combobox>
+            {errors.name && (
+              <span className="block">This field is required</span>
+            )}
           </label>
-          <label className="text-base font-medium text-white">
+          <br />
+          <label>
             Date Taken:
             <input
               type="date"
+              id="dateTaken"
               className="ml-2 text-base font-normal text-gray-900 w-1/2 p-1 rounded-lg"
-              {...register("dateTaken", { required: true })}
+              {...register("dateTaken")}
             />
             {errors.dateTaken && (
               <span className="block">This field is required</span>
             )}
           </label>
-          <label className="text-base font-medium text-white">
+          <br />
+          <label id="timeTaken">
             Time Taken:
             <input
               type="time"
               className="ml-2 text-base font-normal text-gray-900 w-1/2 p-1 rounded-lg"
-              {...register("timeTaken", { required: true })}
+              {...register("timeTaken")}
             />
             {errors.timeTaken && (
               <span className="block">This field is required</span>
