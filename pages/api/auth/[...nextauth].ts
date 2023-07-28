@@ -62,8 +62,7 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       // console.log(token);
       if (session.user) {
-        //@ts-ignore
-        session.user.userId = token.userId;
+        session.user.userId = token.userId as number | null | undefined;
       }
       // console.log(session);
       return session;

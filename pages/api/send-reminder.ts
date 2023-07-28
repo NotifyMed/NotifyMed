@@ -13,7 +13,7 @@ export default async function sendReminder(
   try {
     // Fetch all medication schedules
     const session = await getSession({ req });
-    //@ts-ignore
+
     const userId = session?.user?.userId;
 
     // Get the medication schedule associated with the user
