@@ -35,6 +35,10 @@ const phoneRegExp =
       fetcher(url, { method: "GET" })
     );
     const [userMedications, setUserMedications] = useState<Medication[]>([]);
+    const [medicationSchedules, setMedicationSchedules] = useState<
+      Medication[]
+    >([]);
+
     const [loading, setLoading] = useState(true);
     const [showOptionsMenu, setShowOptionsMenu] = useState(false);
     const [editing, setEditing] = useState(false);
@@ -104,9 +108,18 @@ const phoneRegExp =
     useEffect(() => {
       const getUserMedications = async () => {
         try {
-          const response = await axios.get("/api/medication");
-          const data = response.data;
-          setUserMedications(data);
+          // Fetch user medications
+          const medicationResponse = await axios.get("/api/medication");
+          const medicationData = medicationResponse.data;
+          setUserMedications(medicationData);
+
+          // Fetch medication schedules
+          const scheduleResponse = await axios.get(
+            "/api/medication?action=GET_MEDICATION_SCHEDULE"
+          );
+          const scheduleData = scheduleResponse.data;
+          setMedicationSchedules(scheduleData);
+
           setLoading(false);
         } catch (error) {
           console.error("Error fetching medications:", error);
@@ -122,7 +135,6 @@ const phoneRegExp =
         document.removeEventListener("click", handleClickOutsideMenu);
       };
     }, []);
-
     if (error)
       return (
         <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-20 sm:py-24 lg:py-24 animate-fade-in-up min-h-screen flex flex-col items-center justify-center">
@@ -234,43 +246,48 @@ const phoneRegExp =
                       </tr>
                     </thead>
                     <tbody>
-                      {userMedications.map((medication) => (
-                        <tr
-                          key={medication.name}
-                          className="border-t border-gray-300 text-center"
-                        >
-                          <td className="p-3">
-                            {capitalizeFirstLetter(medication.name)}
-                          </td>
-                          <td className="p-3 text-center">
-                            {`${medication.dose} ${medication.doseUnit}`}
-                          </td>
-                          <td className="p-3 text-center">
-                            {medication.logWindowStart
-                              ? format(
-                                  parse(
-                                    medication.logWindowStart,
-                                    "HH:mm:ss",
-                                    new Date()
-                                  ),
-                                  "hh:mm a"
-                                )
-                              : "N/A"}
-                          </td>
-                          <td className="p-3 text-center">
-                            {medication.logWindowEnd
-                              ? format(
-                                  parse(
-                                    medication.logWindowEnd,
-                                    "HH:mm:ss",
-                                    new Date()
-                                  ),
-                                  "hh:mm a"
-                                )
-                              : "N/A"}
-                          </td>
-                        </tr>
-                      ))}
+                      {userMedications.map((medication) => {
+                        const schedule = medicationSchedules.find(
+                          (schedule) => schedule.id === medication.id
+                        );
+                        return (
+                          <tr
+                            key={medication.name}
+                            className="border-t border-gray-300 text-center"
+                          >
+                            <td className="p-3">
+                              {capitalizeFirstLetter(medication.name)}
+                            </td>
+                            <td className="p-3 text-center">
+                              {`${medication.dose} ${medication.doseUnit}`}
+                            </td>
+                            <td className="p-3 text-center">
+                              {schedule && schedule.logWindowStart
+                                ? format(
+                                    parse(
+                                      schedule.logWindowStart,
+                                      "HH:mm:ss",
+                                      new Date()
+                                    ),
+                                    "hh:mm a"
+                                  )
+                                : "N/A"}
+                            </td>
+                            <td className="p-3 text-center">
+                              {schedule && schedule.logWindowEnd
+                                ? format(
+                                    parse(
+                                      schedule.logWindowEnd,
+                                      "HH:mm:ss",
+                                      new Date()
+                                    ),
+                                    "hh:mm a"
+                                  )
+                                : "N/A"}
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 ) : (
@@ -289,20 +306,20 @@ const phoneRegExp =
     );
   }
 
-export const getServerSideProps = async (
-  context: GetServerSidePropsContext
-) => {
-  const session = await getSession(context);
-  if (!session) {
+  export const getServerSideProps = async (
+    context: GetServerSidePropsContext
+  ) => {
+    const session = await getSession(context);
+    if (!session) {
+      return {
+        redirect: {
+          destination: "/login",
+        },
+      };
+    }
     return {
-      redirect: {
-        destination: "/login",
+      props: {
+        session,
       },
     };
-  }
-  return {
-    props: {
-      session,
-    },
   };
-};
