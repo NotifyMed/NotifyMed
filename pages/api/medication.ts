@@ -15,13 +15,13 @@ export default async function handler(
     case "PUT":
       return handlePutMedication(req, res);
     case "GET":
-      return getMedication(req, res);
+      return handleGetMedication(req, res);
     case "DELETE":
       return deleteMedication(req, res);
     case "PATCH":
       return updateMedication(req, res);
     default:
-      return getMedication(req, res);
+      return handleGetMedication(req, res);
   }
 }
 
@@ -40,6 +40,8 @@ function handleGetMedication(req: NextApiRequest, res: NextApiResponse) {
   switch (req.body.action) {
     case "GET_MEDICATION_SCHEDULE":
       return getMedicationSchedule(req, res);
+    case "GET_MEDICATION_LOG":
+      return getMedicationLog(req, res);
     default:
       return getMedication(req, res);
   }
@@ -200,6 +202,31 @@ async function getMedication(req: NextApiRequest, res: NextApiResponse) {
     return res.status(400).json({ error: e });
   }
 }
+
+async function getMedicationLog(req: NextApiRequest, res: NextApiResponse) {
+  try {
+    const session = await getSession({ req });
+    if (!session) {
+      return res.status(403).json({ error: "Permission denied" });
+    }
+
+    const userId = session?.user?.userId;
+
+    const medicationId = req.query.medicationId;
+
+    let knexResponse = await knex("medicationLog")
+      .select("id", "medication_id", "dateTaken")
+      .where((qb) => {
+        medicationId && qb.where("medication_id", medicationId);
+        qb.where("user_id", userId);
+      });
+
+    return res.status(200).json(knexResponse);
+  } catch (e) {
+    return res.status(400).json({ error: e });
+  }
+}
+
 
 async function deleteMedication(req: NextApiRequest, res: NextApiResponse) {
   try {
