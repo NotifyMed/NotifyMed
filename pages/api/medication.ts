@@ -36,8 +36,8 @@ function handlePutMedication(req: NextApiRequest, res: NextApiResponse) {
   }
 }
 
-function handleGetMedication(req: NextApiRequest, res: NextApiResponse) {
-  switch (req.body.action) {
+async function handleGetMedication(req: NextApiRequest, res: NextApiResponse) {
+  switch (req.query.action) {
     case "GET_MEDICATION_SCHEDULE":
       return getMedicationSchedule(req, res);
     case "GET_MEDICATION_LOG":
