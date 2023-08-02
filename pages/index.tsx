@@ -20,17 +20,23 @@ export default function Home() {
             </span>
           </h1>
         </div>
+        <p className="mt-5 text-lg text-center">
+          Disclaimer: This applcation is not intended to be used as medical
+          advice. We are simply a medication tracker and reminder.
+        </p>
         <div className="text-2xl text-left mt-5">
-          Notify Med is a {""}
           <span className="sm:[&>div]:inline">
             <Typewriter
               onInit={(typewriter) => {
                 typewriter
                   .pauseFor(1000)
-                  .typeString("medication tracker")
+                  .typeString("Notify Med")
                   .pauseFor(300)
                   .deleteAll()
-                  .typeString("medication reminder")
+                  .typeString("Medication Tracker")
+                  .pauseFor(300)
+                  .deleteAll()
+                  .typeString("Medication Reminder")
                   .pauseFor(300)
                   .deleteAll()
                   .start();
