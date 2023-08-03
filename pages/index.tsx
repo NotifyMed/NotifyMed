@@ -1,16 +1,52 @@
-import Typewriter from "typewriter-effect";
-import ScrollTextAnimation from "@/components/landing/ScrollTextAnimation";
-import { useRef } from "react";
-import HowItWorks from "@/components/landing/HowItWorks";
-import { handleScrollToSection } from "@/utils/handleScrollToSection";
-import { HiChevronDoubleDown, HiChevronDoubleRight } from "react-icons/hi";
 import Link from "next/link";
+import { NextSeo } from "next-seo";
+import { HiChevronDoubleDown, HiChevronDoubleRight } from "react-icons/hi";
+import { useRef } from "react";
+import Typewriter from "typewriter-effect";
+import HowItWorks from "@/components/landing/HowItWorks";
+import ScrollTextAnimation from "@/components/landing/ScrollTextAnimation";
+import { handleScrollToSection } from "@/utils/handleScrollToSection";
 
 export default function Home() {
   const howItWorksRef = useRef<HTMLDivElement>(null);
 
   return (
     <div className="bg-gray-dark">
+      <NextSeo
+        title="Notify Med - Medication Tracker and Reminder"
+        description="Never forget to take your medication again!"
+        canonical="https://notifymed.com/"
+        openGraph={{
+          url: "https://notifymed.com/",
+          title: "Notify Med - Medication Tracker and Reminder",
+          description: "Never miss a medication again!",
+          site_name: "Notify Med",
+          type: "website",
+          locale: "en_US",
+        }}
+        additionalMetaTags={[
+          {
+            name: "keywords",
+            content: "medication, reminder, tracker,",
+          },
+          {
+            name: "author",
+            content: "Notify Med",
+          },
+          {
+            property: "og:type",
+            content: "website",
+          },
+          {
+            property: "og:locale",
+            content: "en_US",
+          },
+          {
+            property: "og:site_name",
+            content: "Notify Med",
+          },
+        ]}
+      />
       <section className="max-w-7xl mx-auto mt-5 px-5 sm:px-6 lg:px-8 py-20 sm:py-24 lg:py-24 font-roboto min-h-screen ">
         <div className="text-center">
           <h1 className="text-5xl font-bold">
