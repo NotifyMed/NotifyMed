@@ -1,17 +1,33 @@
 import { GetServerSidePropsContext } from "next";
 import { signIn, getSession } from "next-auth/react";
+import Image from "next/image";
 
 export default function Login() {
   return (
-    <>
-      <p>You are not signed in</p>
-      <button
-        onClick={() => signIn()}
-        className="mt-4 py-2 px-4 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600"
-      >
-        Sign In
-      </button>
-    </>
+    <section className="flex items-center justify-center min-h-screen">
+      <div className="max-w-md w-full rounded-lg ">
+        <p className="text-center text-white text-2xl font-bold mb-4">Log in</p>
+        <div className="flex items-center justify-center mb-4">
+          <button
+            onClick={() => signIn("google")}
+            className="py-2 px-4 text-white hover:text-black font-semibold rounded-md shadow hover:bg-white border border-white flex items-center"
+          >
+            <div className="mr-2">
+              <Image
+                src="/images/icons/google.svg"
+                alt="Icon"
+                width={24}
+                height={24}
+              />
+            </div>
+            <span>Log in with Google</span>
+          </button>
+        </div>
+        <p className="text-center text-gray-500 font-light mb-4">
+          By logging into Notify Med, you are agreeing to our disclaimer.
+        </p>
+      </div>
+    </section>
   );
 }
 
