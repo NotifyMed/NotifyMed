@@ -19,7 +19,7 @@ export default function ScrollTextAnimation() {
         className="min-h-[150vh] bg-gray-dark p-10 sm:p-10 lg:p-56"
         ref={scrollContainerRef}
       >
-        <p className="sticky top-0 py-20 text-5xl font-bold leading-tight text-white">
+        <p className="top-0 py-20 text-5xl font-bold leading-tight text-white">
           {words.map((word, index) => (
             <Word
               key={index}

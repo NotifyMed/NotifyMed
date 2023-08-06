@@ -57,7 +57,7 @@ export default function Home() {
           </h1>
         </div>
         <p className="mt-5 text-lg text-center">
-          Disclaimer: This applcation is not intended to be used as medical
+          Disclaimer: This application is not intended to be used as medical
           advice. We are simply a medication tracker and reminder.
         </p>
         <div className="text-2xl text-left mt-5">
@@ -103,14 +103,14 @@ export default function Home() {
         <div className="flex flex-col justify-center items-center mt-10">
           <div className="w-full max-w-sm  shadow bg-gray-dark">
             <h2 className="mb-3 text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">
-              It&#39;s time to get notified.
+              On time, every time.
             </h2>
 
             <p className="mb-3 text-gray-500 dark:text-gray-400">
-              Never miss a medication again. On time, every time.
+              Never miss a medication again.
             </p>
             <Link
-              href="http://localhost:3000/api/auth/signin?callbackUrl="
+              href="/login"
               className="text-white bg-teal-600 hover:bg-teal-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
             >
               Get Started <HiChevronDoubleRight className="inline" />
