@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Define the User model
+model User {
+  id           Int       @id @default(autoincrement())
+  email        String    @unique
+  name         String?
+  password     String?
+  phone        String?
+  image        String?
+  isDeleted    Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  medications  Medication[]
+  medicationLogs MedicationLog[]
+  schedules    MedicationSchedule[]
+}
+
+// Define the Medication model
+model Medication {
+  id            Int       @id @default(autoincrement())
+  user_id       Int
+  user          User      @relation(fields: [user_id], references: [id])
+  name          String
+  dose          Int
+  doseUnit      String
+  isDeleted     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  medicationLogs MedicationLog[]
+  schedules     MedicationSchedule[]
+}
+
+// Define the MedicationLog model
+model MedicationLog {
+  id             Int       @id @default(autoincrement())
+  user_id        Int
+  user           User      @relation(fields: [user_id], references: [id])
+  medication_id  Int
+  medication     Medication @relation(fields: [medication_id], references: [id])
+  dateTaken      DateTime  @default(now())
+}
+
+// Define the MedicationSchedule model
+model MedicationSchedule {
+  id              Int       @id @default(autoincrement())
+  user_id         Int
+  user            User      @relation(fields: [user_id], references: [id])
+  medication_id   Int
+  medication      Medication @relation(fields: [medication_id], references: [id])
+  logWindowStart  DateTime
+  logWindowEnd    DateTime
+}
