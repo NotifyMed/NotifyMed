@@ -7,12 +7,11 @@ import { Medication } from "@/types/medicationTypes";
 import axios from "axios";
 import { splitDateTime } from ".././utils/splitDateTimeUtility";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
+import { CSVLink } from "react-csv";
 
 function MedicationSchedule() {
   const { data: session, status } = useSession({ required: true });
-
   const [userMedications, setUserMedications] = useState<Medication[]>([]);
-
   const [medicationLogs, setMedicationLogs] = useState<Medication[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -42,6 +41,19 @@ function MedicationSchedule() {
 
     getUserMedicationLogs();
   }, []);
+
+  const prepareCsvData = () => {
+    const csvData = userMedications.map((medication) => {
+      const logs = medicationLogs.find((log) => log.id === medication.id);
+      return {
+        Medication: capitalizeFirstLetter(medication.name),
+        "Date Taken": logs ? splitDateTime(logs.dateTaken).formattedDate : "",
+        "Time Taken": logs ? splitDateTime(logs.dateTaken).formattedTime : "",
+      };
+    });
+
+    return csvData;
+  };
 
   return (
     <>
@@ -112,6 +124,15 @@ function MedicationSchedule() {
                 </>
               )}
             </div>
+          </div>
+          <div className="flex justify-end mt-5">
+            <CSVLink
+              data={prepareCsvData()}
+              filename="medicationlogs.csv"
+              className="py-2 px-4 text-white hover:text-black font-semibold rounded-md shadow hover:bg-white border border-white"
+            >
+              Export CSV
+            </CSVLink>
           </div>
         </section>
       )}
