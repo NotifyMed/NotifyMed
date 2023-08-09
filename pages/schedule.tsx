@@ -1,16 +1,47 @@
 import Head from "next/head";
 import { GetServerSidePropsContext } from "next";
-import { getSession } from "next-auth/react";
-import { useState } from "react";
-import MedicationCalendar from "../components/calendar/MedicationCalendar";
+import { getSession, useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 import { LogMedicationForm } from "../components/medication/LogMedicationForm";
-import { LoggedMedication } from "@/types/medicationTypes";
+import { Medication } from "@/types/medicationTypes";
+import axios from "axios";
+import { splitDateTime } from ".././utils/splitDateTimeUtility";
+import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
 
 function MedicationSchedule() {
-  const [medications, setMedications] = useState<LoggedMedication[]>([]);
-  const handleLogMedication = (medication: LoggedMedication) => {
-    setMedications([...medications, medication]);
+  const { data: session, status } = useSession({ required: true });
+
+  const [userMedications, setUserMedications] = useState<Medication[]>([]);
+
+  const [medicationLogs, setMedicationLogs] = useState<Medication[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const handleLogMedication = (medication: Medication) => {
+    setMedicationLogs([...medicationLogs, medication]);
   };
+
+  useEffect(() => {
+    const getUserMedicationLogs = async () => {
+      try {
+        const medicationResponse = await axios.get("/api/medication");
+        const medicationData = medicationResponse.data;
+        setUserMedications(medicationData);
+
+        const logResponse = await axios.get(
+          "/api/medication?action=GET_MEDICATION_LOG"
+        );
+        const logData = logResponse.data;
+        setMedicationLogs(logData);
+
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching medications:", error);
+        setLoading(false);
+      }
+    };
+
+    getUserMedicationLogs();
+  }, []);
 
   return (
     <>
@@ -22,19 +53,68 @@ function MedicationSchedule() {
         <meta name="keywords" content="medication schedule, notifymed" />
         <meta name="viewport" content="width=device-width" />
       </Head>
-      <section
-        id="medication-schedule"
-        className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-20 sm:py-24 lg:py-24 animate-fade-in-up min-h-screen"
-      >
-        <div className="flex flex-col md:flex-row space-x-4">
-          <div className="w-full md:w-5/12">
-            <LogMedicationForm logMedication={handleLogMedication} />
+      {status === "authenticated" && (
+        <section
+          id="medication-schedule"
+          className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-20 sm:py-24 lg:py-24 animate-fade-in-up min-h-screen"
+        >
+          <div className="flex flex-col md:flex-row space-x-4 ">
+            <div className="w-full md:w-1/2 mt-4">
+              <LogMedicationForm logMedication={handleLogMedication} />
+            </div>
+
+            <div className="w-full md:w-1/2">
+              {loading ? (
+                <p>Loading medications...</p>
+              ) : (
+                <>
+                  <p className="text-xl font-semibold text-center mb-4">
+                    {` ${session?.user?.name}'s Medication Logs`}
+                  </p>
+                  {userMedications.length > 0 ? (
+                    <table className=" w-full border border-gray-300">
+                      <thead>
+                        <tr>
+                          <th className="p-2 font-medium">Medication</th>
+                          <th className="p-2 font-medium">Date Taken</th>
+                          <th className="p-2 font-medium">Time taken</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {userMedications.map((medication) => {
+                          const logs = medicationLogs.find(
+                            (log) => log.id === medication.id
+                          );
+                          return (
+                            logs && (
+                              <tr
+                                key={medication.name}
+                                className="border-t border-gray-300 text-center"
+                              >
+                                <td className="p-3">
+                                  {capitalizeFirstLetter(medication.name)}
+                                </td>
+                                <td className="p-3">
+                                  {splitDateTime(logs.dateTaken).formattedDate}
+                                </td>
+                                <td className="p-3">
+                                  {splitDateTime(logs.dateTaken).formattedTime}
+                                </td>
+                              </tr>
+                            )
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p className="mt-4">No medications found</p>
+                  )}
+                </>
+              )}
+            </div>
           </div>
-          <div className="w-full md:w-7/12">
-            <MedicationCalendar medications={medications} />
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
     </>
   );
 }
