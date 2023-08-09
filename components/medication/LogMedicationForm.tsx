@@ -20,8 +20,8 @@ const schema = yup.object().shape({
 });
 
 type LogMedicationFormProps = {
-  logMedication: (medication: LoggedMedication) => void;
-  defaultValues?: LoggedMedication | undefined;
+  logMedication: (medication: Medication) => void;
+  defaultValues?: Medication | undefined;
 };
 
 export const LogMedicationForm = ({
