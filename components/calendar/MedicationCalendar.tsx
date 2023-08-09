@@ -28,19 +28,32 @@ type MedicationCalendarProps = {
   medications: Medication[];
 };
 
+function processMedicationData(medications: Medication[]) {
+  return medications.map((medication) => {
+    const dateTaken = new Date(medication.dateTaken);
+    const timeTaken = format(dateTaken, "hh:mm a");
+    const sortableTimestamp =
+      dateTaken.getTime() +
+      (timeTaken.includes("PM") ? 12 * 60 * 60 * 1000 : 0);
+
+    return {
+      ...medication,
+      date: dateTaken,
+      timeTaken: timeTaken,
+      sortableTimestamp: sortableTimestamp,
+    };
+  });
+}
+
 function MedicationCalendar({ medications }: MedicationCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState<Date>(
     startOfMonth(new Date())
   );
 
-  const medicationsWithDates = medications.map((medication) => {
-    return {
-      id: medication.id,
-      date: new Date(medication.dateTaken),
-      timeTaken: format(new Date(medication.dateTaken), "hh:mm a"),
-      name: medication.name,
-    };
-  });
+  const medicationsWithDates = processMedicationData(medications);
+  medicationsWithDates.sort(
+    (a, b) => a.sortableTimestamp - b.sortableTimestamp
+  );
 
   return (
     <>
