@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { MonthlyNav } from "./MonthlyNav";
 
 import { format, startOfMonth } from "date-fns";
@@ -9,30 +9,23 @@ import {
   MonthlyCalendar,
 } from "@zach.codes/react-calendar";
 
-import { LoggedMedication } from "@/types/medicationTypes";
+import { Medication } from "@/types/medicationTypes";
 
 type MedicationInfoProps = {
-  loggedMedication: LoggedMedication;
+  loggedMedication: Medication;
 };
 
 function MedicationInfo({ loggedMedication }: MedicationInfoProps) {
-  const formattedTime = format(
-    new Date(`01/01/2000 ${loggedMedication.timeTaken}`),
-    "h:mma"
-  );
-
   return (
-    <>
-      <div className="flex justify-between">
-        <p className="text-sm font-medium mr-2">{loggedMedication.name}</p>
-        <p className="text-sm font-medium mr-2">{formattedTime}</p>
-      </div>
-    </>
+    <div className="flex justify-between text-black">
+      <div className="ml-2">{loggedMedication.id}</div>
+      <div className="mr-2">{loggedMedication.timeTaken}</div>
+    </div>
   );
 }
 
 type MedicationCalendarProps = {
-  medications: LoggedMedication[];
+  medications: Medication[];
 };
 
 function MedicationCalendar({ medications }: MedicationCalendarProps) {
@@ -40,33 +33,14 @@ function MedicationCalendar({ medications }: MedicationCalendarProps) {
     startOfMonth(new Date())
   );
 
-  const medicationsWithDates =
-    medications
-      ?.filter((medication) => medication.dateTaken?.getTime())
-      .map(({ timeTaken, ...medication }) => {
-        const [hours, minutes] = timeTaken
-          .split(":")
-          .map((str) => parseInt(str));
-        const medicationDate = new Date(
-          medication.dateTaken!.getFullYear(),
-          medication.dateTaken!.getMonth(),
-          medication.dateTaken!.getDate(),
-          hours,
-          minutes
-        );
-        return {
-          ...medication,
-          date: medicationDate,
-          time: `${timeTaken.slice(0, -3)}${timeTaken.slice(-3)}`,
-        };
-      })
-      .sort((a, b) => {
-        if (a.date < b.date) return -1;
-        if (a.date > b.date) return 1;
-        if (a.time < b.time) return -1;
-        if (a.time > b.time) return 1;
-        return 0;
-      }) || [];
+  const medicationsWithDates = medications.map((medication) => {
+    return {
+      id: medication.id,
+      date: new Date(medication.dateTaken),
+      timeTaken: format(new Date(medication.dateTaken), "hh:mm a"),
+      name: medication.name,
+    };
+  });
 
   return (
     <>
@@ -75,9 +49,9 @@ function MedicationCalendar({ medications }: MedicationCalendarProps) {
         onCurrentMonthChange={(date) => setCurrentMonth(date)}
       >
         <MonthlyNav />
-        <div className="border-b-2 border-t-2 border-l-2 border-r-2 text-base font-normal text-gray-900">
+        <div className=" text-black">
           <MonthlyBody events={medicationsWithDates}>
-            <MonthlyDay<LoggedMedication>
+            <MonthlyDay<Medication>
               renderDay={(data) =>
                 data.map((medication, index) => (
                   <MedicationInfo key={index} loggedMedication={medication} />
