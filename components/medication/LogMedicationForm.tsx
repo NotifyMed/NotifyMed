@@ -99,6 +99,7 @@ export const LogMedicationForm = ({
     } catch (error) {
       console.error(error);
     }
+    reset();
   };
 
   async function handleAddNewMedication(newMedication: NewMedication) {
