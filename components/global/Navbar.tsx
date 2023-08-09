@@ -41,7 +41,7 @@ const Navbar = () => {
   return (
     <Disclosure
       as="nav"
-      className="bg-transparent border-b border-slate-700 fixed top-0 w-full backdrop-blur"
+      className="bg-black border-b border-slate-700 fixed top-0 w-full"
     >
       {({ open }) => (
         <>
@@ -49,7 +49,7 @@ const Navbar = () => {
             <div className="relative flex items-center justify-between h-14">
               <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
                 {/* Mobile menu button*/}
-                <Disclosure.Button className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+                <Disclosure.Button className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
                   <span className="sr-only">Open main menu</span>
                   {open ? (
                     <HiX className="block h-6 w-6" aria-hidden="true" />
@@ -84,17 +84,30 @@ const Navbar = () => {
                 {/* Profile dropdown */}
                 <Menu as="div" className="ml-3 relative">
                   <div>
-                    <Menu.Button className="bg-gray-800 flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+                    <Menu.Button
+                      className={`bg-gray-800 flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-${
+                        session?.user ? "teal" : "white"
+                      }-700`}
+                    >
                       <span className="sr-only">Open user menu</span>
-                      <Image
-                        src={session?.user?.image ?? ""}
-                        alt={`${session?.user?.name}'s profile picture`}
-                        height={32}
-                        width={32}
-                        className="rounded-full"
-                      />
+                      {session?.user ? (
+                        <Image
+                          src={session?.user?.image ?? ""}
+                          alt={`${session?.user?.name}'s profile picture`}
+                          height={32}
+                          width={32}
+                          className="rounded-full"
+                        />
+                      ) : (
+                        <span
+                          className={`rounded-full w-8 h-8 bg-teal-700 text-white flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white hover:border-white hover:border-2 font-semibold text-sm`}
+                        >
+                          NM
+                        </span>
+                      )}
                     </Menu.Button>
                   </div>
+
                   <Transition
                     as={Fragment}
                     enter="transition ease-out duration-100"
@@ -139,16 +152,15 @@ const Navbar = () => {
                       ) : (
                         <Menu.Item>
                           {({ active }) => (
-                            <a
-                              href="#"
+                            <Link
+                              href="/login"
                               className={classNames(
                                 active ? "bg-gray-100" : "",
                                 "block px-4 py-2 text-sm text-gray-700"
                               )}
-                              onClick={() => signIn()}
                             >
                               Sign in
-                            </a>
+                            </Link>
                           )}
                         </Menu.Item>
                       )}
@@ -168,7 +180,7 @@ const Navbar = () => {
                     className={classNames(
                       item.current
                         ? "bg-gray-900 text-white"
-                        : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                        : "text-gray-300 hover:bg-teal-700 hover:text-white",
                       "block px-3 py-2 rounded-md text-base font-medium"
                     )}
                     aria-current={item.current ? "page" : undefined}
