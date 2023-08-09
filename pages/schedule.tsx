@@ -8,6 +8,7 @@ import axios from "axios";
 import { splitDateTime } from ".././utils/splitDateTimeUtility";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
 import { CSVLink } from "react-csv";
+import MedicationCalendar from "@/components/calendar/MedicationCalendar";
 
 function MedicationSchedule() {
   const { data: session, status } = useSession({ required: true });
@@ -54,7 +55,6 @@ function MedicationSchedule() {
 
     return csvData;
   };
-
   return (
     <>
       <Head>
@@ -84,7 +84,7 @@ function MedicationSchedule() {
                     {` ${session?.user?.name}'s Medication Logs`}
                   </p>
                   {userMedications.length > 0 ? (
-                    <table className=" w-full border border-gray-300">
+                    <table className=" border border-gray-300">
                       <thead>
                         <tr>
                           <th className="p-2 font-medium">Medication</th>
@@ -124,6 +124,9 @@ function MedicationSchedule() {
                 </>
               )}
             </div>
+            <div>
+              <MedicationCalendar medications={medicationLogs} />
+            </div>
           </div>
           <div className="flex justify-end mt-5">
             <CSVLink
@@ -160,3 +163,4 @@ export const getServerSideProps = async (
     },
   };
 };
+
