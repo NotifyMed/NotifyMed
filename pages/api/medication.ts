@@ -4,6 +4,7 @@ import knex from "@/src/knex/knex";
 import { authOptions } from "./auth/[...nextauth]";
 import { getSession } from "next-auth/react";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
+import MedicationController from "@/src/Controllers/MedicationController";
 
 export default async function handler(
   req: NextApiRequest,
@@ -48,36 +49,46 @@ async function handleGetMedication(req: NextApiRequest, res: NextApiResponse) {
 }
 
 async function addMedication(req: NextApiRequest, res: NextApiResponse) {
-  console.log(req.body);
   const session = await getServerSession(req, res, authOptions);
-  console.log(session);
+  const userId = session?.user?.userId;
 
-  try {
-    let knexResponse = await knex("medications")
-      .insert({
-        name: capitalizeFirstLetter(req.body.medication.name),
-        dose: req.body.medication.dose,
-        doseUnit: req.body.medication.doseUnit,
-        user_id: session?.user?.userId,
-      })
-      .returning("*");
-    return res.status(200).json(knexResponse);
-  } catch (e) {
-    console.log(e);
-    return res.status(400).json({ error: e });
-  }
+  const data = {
+    ...req.body.medication,
+    userId,
+  };
+
+  const newMedication = await MedicationController.AddMedication(data);
+
+  if (newMedication != null) return res.status(200).json(newMedication);
+  return res.status(400).json({ error: "Error adding medication" });
 }
 
 async function updateMedication(req: NextApiRequest, res: NextApiResponse) {
-  try {
-    let knexResponse = await knex("medications")
-      .where({ id: req.body.id })
-      .update({ name: capitalizeFirstLetter(req.body.name) })
-      .returning("*");
-    return res.status(200).json(knexResponse);
-  } catch (e) {
-    return res.status(400).json({ error: e });
+  const session = await getServerSession(req, res, authOptions);
+  const userId = session?.user?.userId;
+
+  const data = {
+    ...req.body.medication,
+    userId,
+  };
+
+  const medication = await MedicationController.UpdateMedication(data);
+
+  if (medication == null) {
+    return res.status(400).json({ error: "Error updating medication" });
   }
+
+  return res.status(200).json(medication);
+
+  // try {
+  //   let knexResponse = await knex("medications")
+  //     .where({ id: req.body.id })
+  //     .update({ name: capitalizeFirstLetter(req.body.name) })
+  //     .returning("*");
+  //   return res.status(200).json(knexResponse);
+  // } catch (e) {
+  //   return res.status(400).json({ error: e });
+  // }
 }
 
 async function addMedicationLog(req: NextApiRequest, res: NextApiResponse) {
@@ -179,28 +190,25 @@ async function getMedicationSchedule(
   }
 }
 async function getMedication(req: NextApiRequest, res: NextApiResponse) {
-  try {
-    const session = await getSession({ req });
-    if (!session) {
-      return res.status(403).json({ error: "Permission denied" });
-    }
-
-    const userId = session?.user?.userId;
-
-    let id = req.query.id;
-    let knexResponse = await knex("medications")
-      .select("id", "user_id", "name", "dose", "doseUnit")
-      .where((qb) => {
-        id && qb.where("id", id);
-        qb.where("isDeleted", false);
-        qb.where("user_id", userId);
-      });
-    console.log(knexResponse);
-
-    return res.status(200).json(knexResponse);
-  } catch (e) {
-    return res.status(400).json({ error: e });
+  const session = await getSession({ req });
+  if (!session) {
+    return res.status(403).json({ error: "Permission denied" });
   }
+
+  const userId = session?.user?.userId;
+
+  const data = {
+    ...req.body,
+    userId,
+  };
+
+  const medication = await MedicationController.GetMedication(data);
+
+  if (medication == null) {
+    return res.status(400).json({ error: "Error retrieving medication" });
+  }
+
+  return res.status(200).json(medication);
 }
 
 async function getMedicationLog(req: NextApiRequest, res: NextApiResponse) {
@@ -227,15 +235,18 @@ async function getMedicationLog(req: NextApiRequest, res: NextApiResponse) {
   }
 }
 
-
 async function deleteMedication(req: NextApiRequest, res: NextApiResponse) {
-  try {
-    let knexResponse = await knex("medications")
-      .where({ id: req.query.id })
-      .update({ isDeleted: true })
-      .returning("*");
-    return res.status(200).json(knexResponse);
-  } catch (e) {
-    return res.status(400).json({ error: e });
-  }
+  const session = await getServerSession(req, res, authOptions);
+
+  const userId = session?.user?.userId;
+
+  const data = {
+    ...req.body.medication,
+    userId,
+  };
+
+  const deletedMedication = await MedicationController.DeleteMedication(data);
+
+  if (deleteMedication != null) return res.status(200).json(deletedMedication);
+  return res.status(400).json({ error: "Error deleting medication" });
 }
