@@ -5,6 +5,7 @@ import { authOptions } from "./auth/[...nextauth]";
 import { getSession } from "next-auth/react";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
 import MedicationController from "@/src/Controllers/MedicationController";
+import MedicationLogController from "@/src/Controllers/MedicationLogController";
 
 export default async function handler(
   req: NextApiRequest,
@@ -72,43 +73,28 @@ async function updateMedication(req: NextApiRequest, res: NextApiResponse) {
     userId,
   };
 
-  const medication = await MedicationController.UpdateMedication(data);
+  const updatedMedication = await MedicationController.UpdateMedication(data);
 
-  if (medication == null) {
+  if (updatedMedication == null) {
     return res.status(400).json({ error: "Error updating medication" });
   }
 
-  return res.status(200).json(medication);
-
-  // try {
-  //   let knexResponse = await knex("medications")
-  //     .where({ id: req.body.id })
-  //     .update({ name: capitalizeFirstLetter(req.body.name) })
-  //     .returning("*");
-  //   return res.status(200).json(knexResponse);
-  // } catch (e) {
-  //   return res.status(400).json({ error: e });
-  // }
+  return res.status(200).json(updatedMedication);
 }
 
 async function addMedicationLog(req: NextApiRequest, res: NextApiResponse) {
-  console.log(req.body);
   const session = await getServerSession(req, res, authOptions);
-  console.log(session);
+  const userId = session?.user?.userId;
 
-  try {
-    let knexResponse = await knex("medicationLog")
-      .insert({
-        medication_id: req.body.medicationId,
-        dateTaken: req.body.date,
-        user_id: session?.user?.userId,
-      })
-      .returning("*");
-    return res.status(200).json(knexResponse);
-  } catch (e) {
-    console.log(e);
-    return res.status(400).json({ error: e });
-  }
+  const data = {
+    ...req.body.medication,
+    userId,
+  };
+
+  const newMedicationLog = await MedicationLogController.AddMedicationLog(data);
+
+  if (newMedicationLog != null) return res.status(200).json(newMedicationLog);
+  return res.status(400).json({ error: "Error adding medication" });
 }
 
 async function addMedicationSchedule(
@@ -212,27 +198,18 @@ async function getMedication(req: NextApiRequest, res: NextApiResponse) {
 }
 
 async function getMedicationLog(req: NextApiRequest, res: NextApiResponse) {
-  try {
-    const session = await getSession({ req });
-    if (!session) {
-      return res.status(403).json({ error: "Permission denied" });
-    }
+  const session = await getServerSession(req, res, authOptions);
+  const userId = session?.user?.userId;
 
-    const userId = session?.user?.userId;
+  const data = {
+    ...req.body.medication,
+    userId,
+  };
 
-    const medicationId = req.query.medicationId;
+  const medicationLog = await MedicationLogController.GetMedicationLog(data);
 
-    let knexResponse = await knex("medicationLog")
-      .select("id", "medication_id", "dateTaken")
-      .where((qb) => {
-        medicationId && qb.where("medication_id", medicationId);
-        qb.where("user_id", userId);
-      });
-
-    return res.status(200).json(knexResponse);
-  } catch (e) {
-    return res.status(400).json({ error: e });
-  }
+  if (medicationLog != null) return res.status(200).json(medicationLog);
+  return res.status(400).json({ error: "Error adding medication" });
 }
 
 async function deleteMedication(req: NextApiRequest, res: NextApiResponse) {
