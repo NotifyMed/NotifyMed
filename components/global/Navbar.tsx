@@ -27,6 +27,11 @@ const Navbar = () => {
         ]
       : [
           {
+            name: "Pricing",
+            href: "/#pricing",
+            current: false,
+          },
+          {
             name: "How It Works",
             href: "/#how-it-works",
             current: false,
