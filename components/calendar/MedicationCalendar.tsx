@@ -18,12 +18,11 @@ type MedicationInfoProps = {
 function MedicationInfo({ loggedMedication }: MedicationInfoProps) {
   return (
     <div className="flex justify-between text-black">
-      <div className="ml-2">{loggedMedication.id}</div>
+      <div className="ml-2">{loggedMedication.name}</div>
       <div className="mr-2">{loggedMedication.timeTaken}</div>
     </div>
   );
 }
-
 type MedicationCalendarProps = {
   medications: Medication[];
 };
@@ -31,7 +30,10 @@ type MedicationCalendarProps = {
 function processMedicationData(medications: Medication[]) {
   return medications.map((medication) => {
     const dateTaken = new Date(medication.dateTaken);
-    const timeTaken = format(dateTaken, "hh:mm a");
+    const timeTaken = dateTaken.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
     const sortableTimestamp =
       dateTaken.getTime() +
       (timeTaken.includes("PM") ? 12 * 60 * 60 * 1000 : 0);
@@ -44,6 +46,8 @@ function processMedicationData(medications: Medication[]) {
     };
   });
 }
+
+
 
 function MedicationCalendar({ medications }: MedicationCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState<Date>(
