@@ -5,7 +5,10 @@ import {
   BsEnvelope,
   BsPhone,
   BsPhoneVibrate,
+  BsStopwatch,
 } from "react-icons/bs";
+
+import { MdOutlineSchedule, MdSchedule } from "react-icons/md";
 
 function HowItWorks() {
   const steps = [
@@ -23,27 +26,35 @@ function HowItWorks() {
     },
     {
       number: 3,
-      title: "Add Your Medication",
-      text: "Once you arrive at the schedule page, you'll be able to add in your medication. All that's needed on your end is the name of the medication, dose, dose unit, and your medication window.",
+      title: "Add Medication",
+      text: "Once you arrive at the schedule page, you'll be able to add in your medication. All that's needed on your end is the name of the medication, dose, dose unit.",
       icon: <BsCalendarPlus />,
     },
     {
       number: 4,
-      title: "Log Your Medication",
-      text: "After adding in your medication, you'll be able to find your medications that you have added. By selecting a date and time, you'll be able to see your medication logged onto the calendar.",
-      icon: <BsCalendar3 />,
+      title: "Schedule Your Medication",
+      text: "All we need from you is how often you'll be taking your medications and a specified timeframe. You'll be able to see your scheduled medications in your account page.",
+      icon: <BsStopwatch />,
     },
     {
       number: 5,
+      title: "Log Your Medication",
+      text: "After scheduling your medication, you'll are now able to find your added medications. By selecting a date and time, you'll be able to see your medication logged onto the calendar.",
+      icon: <BsCalendar3 />,
+    },
+    {
+      number: 6,
       title: "GET READY TO BE NOTIFIED",
-      text: "Our system will check if you have logged your medication during your medication window. If it hasn't been logged, we'll send out a text to remind you. It's that simple!",
+      text: "Our system will check if you have logged your medication within your scheduled timeframe. If it hasn't been logged, we'll send out a text to remind you. It's that simple!",
       icon: <BsPhoneVibrate />,
     },
   ];
 
   return (
     <div>
-      <p className="text-4xl text-center mb-10">How It Works</p>
+      <p className="text-2xl text-bold sm:text-4xl text-center mb-10">
+        How It Works
+      </p>
       {steps.map((step) => (
         <div key={step.number} className="">
           <div
@@ -56,7 +67,7 @@ function HowItWorks() {
               <p className="text-3xl font-semibold">{step.number}</p>
               <p className="text-xl">{step.title}</p>
               <p className="">{step.text}</p>
-              {step.number % 5 !== 0 && <hr className="my-5" />}
+              {step.number % 6 !== 0 && <hr className="my-5" />}
             </div>
           </div>
         </div>

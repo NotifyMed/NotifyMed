@@ -97,9 +97,18 @@ export default function Home() {
             <HiChevronDoubleDown className="w-8 h-8 cursor-pointer hover:scale-110 transition-transform" />
           </button>
         </div>
+
+        <div id="pricing" className="text-center my-10">
+          <div className="text-2xl sm:text-4xl text-bold mt-4 ">Pricing</div>
+          <div className="text-lg sm:text-xl mt-4">
+            Just kidding, Notify Med is completely free.
+          </div>
+          <div className="text-lg sm:text-xl leading-2">Let us help!</div>
+        </div>
         <div id="how-it-works">
           <HowItWorks />
         </div>
+
         <div className="flex flex-col justify-center items-center mt-10">
           <div className="w-full max-w-sm  shadow bg-gray-dark">
             <h2 className="mb-3 text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">
