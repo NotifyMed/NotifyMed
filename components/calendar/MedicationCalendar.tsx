@@ -17,9 +17,8 @@ type MedicationInfoProps = {
 
 function MedicationInfo({ loggedMedication }: MedicationInfoProps) {
   return (
-    <div className="flex justify-between text-black">
-      <div className="ml-2">{loggedMedication.name}</div>
-      <div className="mr-2">{loggedMedication.timeTaken}</div>
+    <div className="flex justify-end text-black">
+      <div>{loggedMedication.timeTaken}</div>
     </div>
   );
 }
