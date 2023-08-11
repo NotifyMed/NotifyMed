@@ -1,16 +1,27 @@
 import { motion, useAnimation } from "framer-motion";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
-  BsCalendar3,
   BsEnvelope,
   BsPhone,
   BsPhoneVibrate,
   BsStopwatch,
 } from "react-icons/bs";
 
+function CalendarAnimation({ index }: { index: number }) {
+  return (
+    <motion.img
+      src={`/images/cal${index + 1}.png`}
+      alt="Calendar"
+      initial={{ x: 0 }}
+      className="w-16 h-16"
+    />
+  );
+}
+
 function HowItWorks() {
   const controls = useAnimation();
   const step5Ref = useRef(null);
+  const [calendarImageIndex, setCalendarImageIndex] = useState(0);
 
   const animationConfig = {
     x: [0, -3, 3, -2, 2, 0],
@@ -51,6 +62,16 @@ function HowItWorks() {
     return () => clearInterval(interval);
   }, [controls]);
 
+  const updateImageIndex = () => {
+    setCalendarImageIndex((prevIndex) => (prevIndex + 1) % 4);
+  };
+
+  useEffect(() => {
+    const interval = setInterval(updateImageIndex, 4000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const steps = [
     {
       number: 1,
@@ -74,7 +95,7 @@ function HowItWorks() {
       number: 4,
       title: "Log Your Medication",
       text: "After scheduling your medication, you'll be able to select which medication you want to log. By selecting a date and time, you'll be able to see your medication logged onto the calendar and in your account page.",
-      icon: <BsCalendar3 />,
+      icon: <CalendarAnimation index={calendarImageIndex} />,
     },
     {
       number: 5,
