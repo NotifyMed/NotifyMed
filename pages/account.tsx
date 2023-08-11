@@ -321,7 +321,7 @@ export default function Account({ defaultValues }: AccountProps) {
                     <p>Loading medication schedule...</p>
                   ) : (
                     <>
-                      {userMedications.length > 0 ? (
+                      {medicationSchedules.length > 0 ? (
                         <table className="mt-4 border border-gray-300 w-full">
                           <thead>
                             <tr>
@@ -416,7 +416,7 @@ export default function Account({ defaultValues }: AccountProps) {
                     <p>Loading medication logs...</p>
                   ) : (
                     <>
-                      {userMedications.length > 0 ? (
+                      {medicationLogs.length > 0 ? (
                         <table className="mt-4 border border-gray-300 w-full">
                           <thead>
                             <tr>
@@ -475,7 +475,7 @@ export default function Account({ defaultValues }: AccountProps) {
                     </>
                   )}
                   <div className="flex justify-end mt-4">
-                    {userMedications.length > 0 ? (
+                    {medicationLogs.length > 0 ? (
                       <div className="flex justify-end mt-4">
                         <CSVLink
                           data={medicationLogData()}
