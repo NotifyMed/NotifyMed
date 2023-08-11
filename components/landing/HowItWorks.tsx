@@ -1,16 +1,56 @@
-import Image from "next/image";
+import { motion, useAnimation } from "framer-motion";
+import { useEffect, useRef } from "react";
 import {
   BsCalendar3,
-  BsCalendarPlus,
   BsEnvelope,
   BsPhone,
   BsPhoneVibrate,
   BsStopwatch,
 } from "react-icons/bs";
 
-import { MdOutlineSchedule, MdSchedule } from "react-icons/md";
-
 function HowItWorks() {
+  const controls = useAnimation();
+  const step5Ref = useRef(null);
+
+  const animationConfig = {
+    x: [0, -3, 3, -2, 2, 0],
+    transition: {
+      repeat: Infinity,
+      duration: 3,
+    },
+  };
+
+  useEffect(() => {
+    const step5Observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          controls.start(animationConfig);
+        } else {
+          controls.stop();
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    if (step5Ref.current) {
+      step5Observer.observe(step5Ref.current);
+    }
+
+    return () => {
+      if (step5Ref.current) {
+        step5Observer.unobserve(step5Ref.current);
+      }
+    };
+  }, [controls]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      controls.start(animationConfig);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [controls]);
+
   const steps = [
     {
       number: 1,
@@ -26,24 +66,18 @@ function HowItWorks() {
     },
     {
       number: 3,
-      title: "Add Medication",
-      text: "Once you arrive at the schedule page, you'll be able to add in your medication. All that's needed on your end is the name of the medication, dose, dose unit.",
-      icon: <BsCalendarPlus />,
-    },
-    {
-      number: 4,
       title: "Schedule Your Medication",
-      text: "All we need from you is how often you'll be taking your medications and a specified timeframe. You'll be able to see your scheduled medications in your account page.",
+      text: "Once you arrive at the schedule page, you'll be able to add in your medication. All that's needed on your end is the name of the medication, dose, dose unit and a specified timeframe. You'll be able to see your scheduled medications in your account page.",
       icon: <BsStopwatch />,
     },
     {
-      number: 5,
+      number: 4,
       title: "Log Your Medication",
-      text: "After scheduling your medication, you'll are now able to find your added medications. By selecting a date and time, you'll be able to see your medication logged onto the calendar.",
+      text: "After scheduling your medication, you'll be able to select which medication you want to log. By selecting a date and time, you'll be able to see your medication logged onto the calendar and in your account page.",
       icon: <BsCalendar3 />,
     },
     {
-      number: 6,
+      number: 5,
       title: "GET READY TO BE NOTIFIED",
       text: "Our system will check if you have logged your medication within your scheduled timeframe. If it hasn't been logged, we'll send out a text to remind you. It's that simple!",
       icon: <BsPhoneVibrate />,
@@ -56,18 +90,30 @@ function HowItWorks() {
         How It Works
       </p>
       {steps.map((step) => (
-        <div key={step.number} className="">
+        <div key={step.number}>
           <div
             className={`flex flex-col md:flex-row mx-5 justify-center items-center ${
               step.number % 2 !== 0 && "md:flex-row-reverse"
             }`}
           >
-            <div className="text-7xl">{step.icon}</div>
+            <div className="text-7xl">
+              {step.number === 5 ? (
+                <motion.div
+                  ref={step5Ref}
+                  animate={controls}
+                  initial={{ x: 0 }}
+                >
+                  {step.icon}
+                </motion.div>
+              ) : (
+                step.icon
+              )}
+            </div>
             <div className={`w-96 mx-5 text-center md:text-left`}>
               <p className="text-3xl font-semibold">{step.number}</p>
               <p className="text-xl">{step.title}</p>
-              <p className="">{step.text}</p>
-              {step.number % 6 !== 0 && <hr className="my-5" />}
+              <p>{step.text}</p>
+              {step.number % 5 !== 0 && <hr className="my-5" />}
             </div>
           </div>
         </div>
