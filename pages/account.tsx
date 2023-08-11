@@ -13,6 +13,7 @@ import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
 import { splitDateTime } from "@/utils/splitDateTimeUtility";
 import { Medication } from "@/types/medicationTypes";
 import { Tab } from "@headlessui/react";
+import Link from "next/link";
 
 type Profile = {
   phone: string;
@@ -111,7 +112,7 @@ export default function Account({ defaultValues }: AccountProps) {
     }
   };
 
-  const medicationScheduleCsvData = () => {
+  const medicationScheduleData = () => {
     const csvData = userMedications.map((medication) => {
       const schedule = medicationSchedules.find(
         (schedule) => schedule.id === medication.id
@@ -380,18 +381,34 @@ export default function Account({ defaultValues }: AccountProps) {
                           </tbody>
                         </table>
                       ) : (
-                        <p className="mt-4">No medication schedules found</p>
+                        <div>
+                          <p className="mt-4">No medication schedules found.</p>
+                          <p className="mt-4">
+                            Head to the{" "}
+                            <Link
+                              href="/schedule"
+                              className="font-bold cursor-pointer"
+                            >
+                              schedule
+                            </Link>{" "}
+                            page to start scheduling.
+                          </p>
+                        </div>
                       )}
                     </>
                   )}
                   <div className="flex justify-end mt-4">
-                    <CSVLink
-                      data={medicationScheduleCsvData()}
-                      filename="medicationschedule.csv"
-                      className="py-2 px-4 text-white hover:text-black font-semibold rounded-md shadow hover:bg-white border border-white flex items-center"
-                    >
-                      Export CSV
-                    </CSVLink>
+                    {userMedications.length > 0 ? (
+                      <div className="flex justify-end mt-4">
+                        <CSVLink
+                          data={medicationScheduleData()}
+                          filename="medicationschedule.csv"
+                          className="py-2 px-4 text-white hover:text-black font-semibold rounded-md shadow hover:bg-white border border-white flex items-center"
+                        >
+                          Export CSV
+                        </CSVLink>
+                      </div>
+                    ) : null}
                   </div>
                 </Tab.Panel>
                 <Tab.Panel>
@@ -441,18 +458,34 @@ export default function Account({ defaultValues }: AccountProps) {
                           </tbody>
                         </table>
                       ) : (
-                        <p className="mt-4">No medication logs found</p>
+                        <div>
+                          <p className="mt-4">No medication logs found.</p>
+                          <p className="mt-4">
+                            Head to the{" "}
+                            <Link
+                              href="/schedule"
+                              className="font-bold cursor-pointer"
+                            >
+                              schedule
+                            </Link>{" "}
+                            page to start logging.
+                          </p>
+                        </div>
                       )}
                     </>
                   )}
                   <div className="flex justify-end mt-4">
-                    <CSVLink
-                      data={medicationLogData()}
-                      filename="medicationlogs.csv"
-                      className="py-2 px-4 text-white hover:text-black font-semibold rounded-md shadow hover:bg-white border border-white flex items-center"
-                    >
-                      Export CSV
-                    </CSVLink>
+                    {userMedications.length > 0 ? (
+                      <div className="flex justify-end mt-4">
+                        <CSVLink
+                          data={medicationLogData()}
+                          filename="medicationlogs.csv"
+                          className="py-2 px-4 text-white hover:text-black font-semibold rounded-md shadow hover:bg-white border border-white flex items-center"
+                        >
+                          Export CSV
+                        </CSVLink>
+                      </div>
+                    ) : null}
                   </div>
                 </Tab.Panel>
               </Tab.Panels>
