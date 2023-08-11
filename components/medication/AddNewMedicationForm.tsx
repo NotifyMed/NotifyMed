@@ -7,10 +7,7 @@ import { NewMedication, MedicationSchedule } from "@/types/medicationTypes";
 
 const schema = yup.object().shape({
   name: yup.string().required("Name is required"),
-  dose: yup
-    .number()
-    .required("Dose is required")
-    .positive("Dose must be positive"),
+  dose: yup.string().required("Dose is required"),
   doseUnit: yup.string().required("Dose Unit is required"),
   logWindowStart: yup.string().required("Log Window Start is required"),
   logWindowEnd: yup.string().required("Log Window End is required"),
