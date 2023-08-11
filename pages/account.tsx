@@ -231,20 +231,18 @@ export default function Account({ defaultValues }: AccountProps) {
             <div className="flex items-center mt-4">
               <label className="text-white font-medium" htmlFor="phone">
                 Phone:
-                {editing ? (
-                  <input
-                    className="ml-2 text-black bg-white p-2 border border-gray-300 rounded"
-                    type="text"
-                    id="phone"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                  />
-                ) : (
-                  <span className="ml-2 text-black bg-white p-2 border border-gray-300 rounded">
-                    {data.phone}
-                  </span>
-                )}
+                <input
+                  className={`ml-2 p-2 border rounded ${
+                    editing ? "text-white bg-black" : "text-black bg-white"
+                  }`}
+                  type="text"
+                  id="phone"
+                  value={phoneNumber || data.phone}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  onClick={() => setEditing(true)}
+                  onKeyDown={handleKeyDown}
+                  readOnly={!editing}
+                />
               </label>
 
               <div className="relative mr-2" ref={optionsMenuRef}>
