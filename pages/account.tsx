@@ -1,16 +1,18 @@
-import Image from "next/image";
+import axios from "axios";
+import { format, parse } from "date-fns";
+import { CSVLink } from "react-csv";
+import useSWR from "swr";
+import * as yup from "yup";
 import { GetServerSidePropsContext } from "next";
 import { useSession, getSession } from "next-auth/react";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import useSWR from "swr";
-import axios from "axios";
-import * as yup from "yup";
-import { format, parse } from "date-fns";
-import { CSVLink } from "react-csv";
-import { Medication } from "@/types/medicationTypes";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
+import { splitDateTime } from "@/utils/splitDateTimeUtility";
+import { Medication } from "@/types/medicationTypes";
+import { Tab } from "@headlessui/react";
 
 type Profile = {
   phone: string;
@@ -18,6 +20,10 @@ type Profile = {
 
 interface AccountProps {
   defaultValues?: Profile;
+}
+
+function classNames(...classes: any) {
+  return classes.filter(Boolean).join(" ");
 }
 
 const phoneRegExp =
@@ -37,6 +43,7 @@ export default function Account({ defaultValues }: AccountProps) {
   const [medicationSchedules, setMedicationSchedules] = useState<Medication[]>(
     []
   );
+  const [medicationLogs, setMedicationLogs] = useState<Medication[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [showOptionsMenu, setShowOptionsMenu] = useState(false);
@@ -104,14 +111,14 @@ export default function Account({ defaultValues }: AccountProps) {
     }
   };
 
-  const prepareCsvData = () => {
+  const medicationScheduleCsvData = () => {
     const csvData = userMedications.map((medication) => {
       const schedule = medicationSchedules.find(
         (schedule) => schedule.id === medication.id
       );
       return {
-        Medicine: capitalizeFirstLetter(medication.name),
-        Dose: `${medication.dose} ${medication.doseUnit}`,
+        Medication: capitalizeFirstLetter(medication.name),
+        Dose: `${medication.dose}${medication.doseUnit}`,
         "Log Window (Start)":
           schedule && schedule.logWindowStart
             ? format(
@@ -132,8 +139,21 @@ export default function Account({ defaultValues }: AccountProps) {
     return csvData;
   };
 
+  const medicationLogData = () => {
+    const csvData = userMedications.map((medication) => {
+      const logs = medicationLogs.find((log) => log.id === medication.id);
+      return {
+        Medication: capitalizeFirstLetter(medication.name),
+        "Date Taken": logs ? splitDateTime(logs.dateTaken).formattedDate : "",
+        "Time Taken": logs ? splitDateTime(logs.dateTaken).formattedTime : "",
+      };
+    });
+
+    return csvData;
+  };
+
   useEffect(() => {
-    const getUserMedications = async () => {
+    const fetchData = async () => {
       try {
         // Fetch user medications
         const medicationResponse = await axios.get("/api/medication");
@@ -147,14 +167,21 @@ export default function Account({ defaultValues }: AccountProps) {
         const scheduleData = scheduleResponse.data;
         setMedicationSchedules(scheduleData);
 
+        // Fetch medication logs
+        const logResponse = await axios.get(
+          "/api/medication?action=GET_MEDICATION_LOG"
+        );
+        const logData = logResponse.data;
+        setMedicationLogs(logData);
+
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching medications:", error);
+        console.error("Error fetching data:", error);
         setLoading(false);
       }
     };
 
-    getUserMedications();
+    fetchData();
 
     document.addEventListener("click", handleClickOutsideMenu);
 
@@ -257,80 +284,182 @@ export default function Account({ defaultValues }: AccountProps) {
                   </div>
                 )}
               </div>
-
-              <CSVLink
-                data={prepareCsvData()}
-                filename="medicationschedule.csv"
-                className="py-2 px-4 text-white hover:text-black font-semibold rounded-md shadow hover:bg-white border border-white flex items-center"
-              >
-                Export CSV
-              </CSVLink>
             </div>
           </form>
-          {loading ? (
-            <p>Loading medications...</p>
-          ) : (
-            <>
-              {userMedications.length > 0 ? (
-                <table className="mt-4 border border-gray-300">
-                  <thead>
-                    <tr>
-                      <th className="p-2 font-medium">Medicine</th>
-                      <th className="p-2 font-medium">Dose</th>
-                      <th className="p-2 font-medium">Log Window (Start)</th>
-                      <th className="p-2 font-medium">Log Window (End)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {userMedications.map((medication) => {
-                      const schedule = medicationSchedules.find(
-                        (schedule) => schedule.id === medication.id
-                      );
-                      return (
-                        <tr
-                          key={medication.name}
-                          className="border-t border-gray-300 text-center"
-                        >
-                          <td className="p-3">
-                            {capitalizeFirstLetter(medication.name)}
-                          </td>
-                          <td className="p-3 text-center">
-                            {`${medication.dose} ${medication.doseUnit}`}
-                          </td>
-                          <td className="p-3 text-center">
-                            {schedule && schedule.logWindowStart
-                              ? format(
-                                  parse(
-                                    schedule.logWindowStart,
-                                    "HH:mm:ss",
-                                    new Date()
-                                  ),
-                                  "hh:mm a"
+          <div className="w-full max-w-md px-2 py-16 sm:px-0">
+            <Tab.Group>
+              <Tab.List className="flex space-x-1 rounded-xl bg-blue-900/20 p-1">
+                <Tab
+                  className={({ selected }) =>
+                    classNames(
+                      "w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-black",
+                      "ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2",
+                      selected
+                        ? "bg-white shadow"
+                        : "text-blue-100 hover:bg-white/[0.12] hover:text-white"
+                    )
+                  }
+                >
+                  Schedule
+                </Tab>
+                <Tab
+                  className={({ selected }) =>
+                    classNames(
+                      "w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-black",
+                      "ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2",
+                      selected
+                        ? "bg-white shadow"
+                        : "text-blue-100 hover:bg-white/[0.12] hover:text-white"
+                    )
+                  }
+                >
+                  Logs
+                </Tab>
+              </Tab.List>
+              <Tab.Panels>
+                <Tab.Panel>
+                  {loading ? (
+                    <p>Loading medication schedule...</p>
+                  ) : (
+                    <>
+                      {userMedications.length > 0 ? (
+                        <table className="mt-4 border border-gray-300 w-full">
+                          <thead>
+                            <tr>
+                              <th className="p-2 font-medium">Medication</th>
+                              <th className="p-2 font-medium">Dose</th>
+                              <th className="p-2 font-medium">
+                                Log Window (Start)
+                              </th>
+                              <th className="p-2 font-medium">
+                                Log Window (End)
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {userMedications.map((medication) => {
+                              const schedule = medicationSchedules.find(
+                                (schedule) => schedule.id === medication.id
+                              );
+                              return (
+                                <tr
+                                  key={medication.name}
+                                  className="border-t border-gray-300 text-center"
+                                >
+                                  <td className="p-3">
+                                    {capitalizeFirstLetter(medication.name)}
+                                  </td>
+                                  <td className="p-3 text-center">
+                                    {`${medication.dose}${medication.doseUnit}`}
+                                  </td>
+                                  <td className="p-3 text-center">
+                                    {schedule && schedule.logWindowStart
+                                      ? format(
+                                          parse(
+                                            schedule.logWindowStart,
+                                            "HH:mm:ss",
+                                            new Date()
+                                          ),
+                                          "hh:mm a"
+                                        )
+                                      : "N/A"}
+                                  </td>
+                                  <td className="p-3 text-center">
+                                    {schedule && schedule.logWindowEnd
+                                      ? format(
+                                          parse(
+                                            schedule.logWindowEnd,
+                                            "HH:mm:ss",
+                                            new Date()
+                                          ),
+                                          "hh:mm a"
+                                        )
+                                      : "N/A"}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      ) : (
+                        <p className="mt-4">No medication schedules found</p>
+                      )}
+                    </>
+                  )}
+                  <div className="flex justify-end mt-4">
+                    <CSVLink
+                      data={medicationScheduleCsvData()}
+                      filename="medicationschedule.csv"
+                      className="py-2 px-4 text-white hover:text-black font-semibold rounded-md shadow hover:bg-white border border-white flex items-center"
+                    >
+                      Export CSV
+                    </CSVLink>
+                  </div>
+                </Tab.Panel>
+                <Tab.Panel>
+                  {loading ? (
+                    <p>Loading medication logs...</p>
+                  ) : (
+                    <>
+                      {userMedications.length > 0 ? (
+                        <table className="mt-4 border border-gray-300 w-full">
+                          <thead>
+                            <tr>
+                              <th className="p-2 font-medium">Medication</th>
+                              <th className="p-2 font-medium">Date Taken</th>
+                              <th className="p-2 font-medium">Time taken</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {userMedications.map((medication) => {
+                              const logs = medicationLogs.find(
+                                (log) => log.id === medication.id
+                              );
+                              return (
+                                logs && (
+                                  <tr
+                                    key={medication.name}
+                                    className="border-t border-gray-300 text-center"
+                                  >
+                                    <td className="p-3">
+                                      {capitalizeFirstLetter(medication.name)}
+                                    </td>
+                                    <td className="p-3">
+                                      {
+                                        splitDateTime(logs.dateTaken)
+                                          .formattedDate
+                                      }
+                                    </td>
+                                    <td className="p-3">
+                                      {
+                                        splitDateTime(logs.dateTaken)
+                                          .formattedTime
+                                      }
+                                    </td>
+                                  </tr>
                                 )
-                              : "N/A"}
-                          </td>
-                          <td className="p-3 text-center">
-                            {schedule && schedule.logWindowEnd
-                              ? format(
-                                  parse(
-                                    schedule.logWindowEnd,
-                                    "HH:mm:ss",
-                                    new Date()
-                                  ),
-                                  "hh:mm a"
-                                )
-                              : "N/A"}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              ) : (
-                <p className="mt-4">No medications found</p>
-              )}
-            </>
-          )}
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      ) : (
+                        <p className="mt-4">No medication logs found</p>
+                      )}
+                    </>
+                  )}
+                  <div className="flex justify-end mt-4">
+                    <CSVLink
+                      data={medicationLogData()}
+                      filename="medicationlogs.csv"
+                      className="py-2 px-4 text-white hover:text-black font-semibold rounded-md shadow hover:bg-white border border-white flex items-center"
+                    >
+                      Export CSV
+                    </CSVLink>
+                  </div>
+                </Tab.Panel>
+              </Tab.Panels>
+            </Tab.Group>
+          </div>
         </section>
       )}
       {status !== "authenticated" && (
@@ -342,20 +471,20 @@ export default function Account({ defaultValues }: AccountProps) {
   );
 }
 
-  export const getServerSideProps = async (
-    context: GetServerSidePropsContext
-  ) => {
-    const session = await getSession(context);
-    if (!session) {
-      return {
-        redirect: {
-          destination: "/login",
-        },
-      };
-    }
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
+  const session = await getSession(context);
+  if (!session) {
     return {
-      props: {
-        session,
+      redirect: {
+        destination: "/login",
       },
     };
+  }
+  return {
+    props: {
+      session,
+    },
   };
+};
