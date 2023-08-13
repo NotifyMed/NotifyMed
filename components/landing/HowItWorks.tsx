@@ -1,5 +1,5 @@
 import { motion, useAnimation } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   BsEnvelope,
   BsPhone,
@@ -23,12 +23,19 @@ function HowItWorks() {
   const step5Ref = useRef(null);
   const [calendarImageIndex, setCalendarImageIndex] = useState(0);
 
-  const animationConfig = {
-    x: [0, -3, 3, -2, 2, 0],
-    transition: {
-      repeat: Infinity,
-      duration: 3,
-    },
+  const animationConfig = useMemo(
+    () => ({
+      x: [0, -3, 3, -2, 2, 0],
+      transition: {
+        repeat: Infinity,
+        duration: 3,
+      },
+    }),
+    []
+  );
+
+  const updateImageIndex = () => {
+    setCalendarImageIndex((prevIndex) => (prevIndex + 1) % 4);
   };
 
   useEffect(() => {
@@ -43,16 +50,18 @@ function HowItWorks() {
       { threshold: 0.5 }
     );
 
-    if (step5Ref.current) {
-      step5Observer.observe(step5Ref.current);
+    const step5Element = step5Ref.current;
+
+    if (step5Element) {
+      step5Observer.observe(step5Element);
     }
 
     return () => {
-      if (step5Ref.current) {
-        step5Observer.unobserve(step5Ref.current);
+      if (step5Element) {
+        step5Observer.unobserve(step5Element);
       }
     };
-  }, [controls]);
+  }, [controls, animationConfig]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -60,11 +69,7 @@ function HowItWorks() {
     }, 4000);
 
     return () => clearInterval(interval);
-  }, [controls]);
-
-  const updateImageIndex = () => {
-    setCalendarImageIndex((prevIndex) => (prevIndex + 1) % 4);
-  };
+  }, [controls, animationConfig]);
 
   useEffect(() => {
     const interval = setInterval(updateImageIndex, 4000);
