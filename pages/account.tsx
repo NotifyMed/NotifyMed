@@ -119,6 +119,7 @@ export default function Account({ defaultValues }: AccountProps) {
         (schedule) => schedule.id === medication.id
       );
       return {
+        Patient: session?.user?.name,
         Medication: capitalizeFirstLetter(medication.name),
         Dose: `${medication.dose}${medication.doseUnit}`,
         "Log Window (Start)":
@@ -135,6 +136,8 @@ export default function Account({ defaultValues }: AccountProps) {
                 "hh:mm a"
               )
             : "N/A",
+        "Log Frequency (Hours)":
+          schedule && schedule.logFrequency ? schedule.logFrequency : "N/A",
       };
     });
 
@@ -145,6 +148,7 @@ export default function Account({ defaultValues }: AccountProps) {
     const csvData = userMedications.map((medication) => {
       const logs = medicationLogs.find((log) => log.id === medication.id);
       return {
+        Patient: session?.user?.name,
         Medication: capitalizeFirstLetter(medication.name),
         "Date Taken": logs ? splitDateTime(logs.dateTaken).formattedDate : "",
         "Time Taken": logs ? splitDateTime(logs.dateTaken).formattedTime : "",
@@ -334,6 +338,9 @@ export default function Account({ defaultValues }: AccountProps) {
                               <th className="p-2 font-medium">
                                 Log Window (End)
                               </th>
+                              <th className="p-2 font-medium">
+                                Log Frequency (Hours)
+                              </th>
                             </tr>
                           </thead>
                           <tbody>
@@ -376,6 +383,7 @@ export default function Account({ defaultValues }: AccountProps) {
                                         )
                                       : "N/A"}
                                   </td>
+                                  <td>{schedule && schedule.logFrequency}</td>
                                 </tr>
                               );
                             })}
@@ -423,7 +431,7 @@ export default function Account({ defaultValues }: AccountProps) {
                             <tr>
                               <th className="p-2 font-medium">Medication</th>
                               <th className="p-2 font-medium">Date Taken</th>
-                              <th className="p-2 font-medium">Time taken</th>
+                              <th className="p-2 font-medium">Time Taken</th>
                             </tr>
                           </thead>
                           <tbody>

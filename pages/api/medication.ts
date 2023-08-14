@@ -105,7 +105,8 @@ async function addMedicationSchedule(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { medication, logWindowStart, logWindowEnd, userId } = req.body;
+  const { medication, logWindowStart, logWindowEnd, logFrequency, userId } =
+    req.body;
 
   try {
     let medicationResponse = await knex("medications")
@@ -125,6 +126,7 @@ async function addMedicationSchedule(
         medication_id: medicationId,
         logWindowStart: logWindowStart,
         logWindowEnd: logWindowEnd,
+        logFrequency: logFrequency,
       })
       .returning("*");
 
@@ -189,7 +191,8 @@ async function getMedicationSchedule(
         "medications.dose",
         "medications.doseUnit",
         "medicationschedule.logWindowStart",
-        "medicationschedule.logWindowEnd"
+        "medicationschedule.logWindowEnd",
+        "medicationschedule.logFrequency"
       )
       .where((qb) => {
         id && qb.where("medications.id", id);

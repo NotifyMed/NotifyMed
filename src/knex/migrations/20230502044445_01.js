@@ -36,6 +36,7 @@
        table.integer("medication_id").references("id").inTable("medications");
        table.time("logWindowStart").notNullable();
        table.time("logWindowEnd").notNullable();
+       table.integer("logFrequency");
      }),
    ]);
  };
