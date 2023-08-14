@@ -11,6 +11,7 @@ const schema = yup.object().shape({
   doseUnit: yup.string().required("Dose Unit is required"),
   logWindowStart: yup.string().required("Log Window Start is required"),
   logWindowEnd: yup.string().required("Log Window End is required"),
+  logFrequency: yup.string().required("Log Window End is required"),
 });
 
 const doseUnits = ["g", "mg", "ml", "l", "tbsp", "tsp", "capsule"];
@@ -33,6 +34,7 @@ const AddNewMedicationForm = ({
             doseUnit: "mg",
             logWindowStart: "12:00:00",
             logWindowEnd: "12:00:00",
+            logFrequency: "24",
           }
         : {},
   });
@@ -50,6 +52,7 @@ const AddNewMedicationForm = ({
       medication: data.name,
       logWindowStart: data.logWindowStart,
       logWindowEnd: data.logWindowEnd,
+      logFrequency: data.logFrequency,
     };
 
     try {
@@ -65,6 +68,7 @@ const AddNewMedicationForm = ({
         medication: newMedication,
         logWindowStart: data.logWindowStart,
         logWindowEnd: data.logWindowEnd,
+        logFrequency: data.logFrequency,
       });
 
       if (res.status === 200) {
@@ -75,6 +79,7 @@ const AddNewMedicationForm = ({
           id: res.data.medication.id,
           logWindowStart: res.data.schedule.logWindowStart,
           logWindowEnd: res.data.schedule.logWindowEnd,
+          logFrequency: res.data.schedule.logFrequency,
         });
       }
     } catch (error) {
@@ -124,6 +129,13 @@ const AddNewMedicationForm = ({
           type="time"
           id="logWindowEnd"
           {...register("logWindowEnd")}
+          className="ml-2 text-base font-normal text-gray-900 w-1/2 p-1 rounded-lg"
+        />
+        <label htmlFor="Log Frequency (Hours)">Log Frequency (Hours)</label>
+        <input
+          type="number"
+          id="frequency"
+          {...register("logFrequency")}
           className="ml-2 text-base font-normal text-gray-900 w-1/2 p-1 rounded-lg"
         />
         <div className="flex justify-end">

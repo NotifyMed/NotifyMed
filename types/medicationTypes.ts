@@ -25,10 +25,12 @@ export type Medication = {
   timeTaken: string;
   logWindowStart?: string;
   logWindowEnd?: string;
+  logFrequency?: string;
 };
 
 export type MedicationSchedule = {
   medication: Medication;
   logWindowStart: string;
   logWindowEnd: string;
+  logFrequency: string;
 };
