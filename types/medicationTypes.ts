@@ -15,6 +15,7 @@ export type NewMedication = {
 
 export type Medication = {
   action?: string;
+  medication_id: number;
   id?: number;
   userID?: number;
   name: string;
