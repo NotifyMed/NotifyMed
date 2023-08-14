@@ -14,6 +14,7 @@ import { splitDateTime } from "@/utils/splitDateTimeUtility";
 import { Medication } from "@/types/medicationTypes";
 import { Tab } from "@headlessui/react";
 import Link from "next/link";
+import React from "react";
 
 type Profile = {
   phone: string;
@@ -427,32 +428,41 @@ export default function Account({ defaultValues }: AccountProps) {
                           </thead>
                           <tbody>
                             {userMedications.map((medication) => {
-                              const logs = medicationLogs.find(
-                                (log) => log.id === medication.id
-                              );
-                              return (
-                                logs && (
-                                  <tr
-                                    key={medication.name}
-                                    className="border-t border-gray-300 text-center"
-                                  >
-                                    <td className="p-3">
-                                      {capitalizeFirstLetter(medication.name)}
-                                    </td>
-                                    <td className="p-3">
-                                      {
-                                        splitDateTime(logs.dateTaken)
-                                          .formattedDate
-                                      }
-                                    </td>
-                                    <td className="p-3">
-                                      {
-                                        splitDateTime(logs.dateTaken)
-                                          .formattedTime
-                                      }
-                                    </td>
-                                  </tr>
+                              const logs = medicationLogs
+                                .filter(
+                                  (log) => log.medication_id === medication.id
                                 )
+                                .sort(
+                                  (a, b) =>
+                                    new Date(a.dateTaken).getTime() -
+                                    new Date(b.dateTaken).getTime()
+                                );
+
+                              return (
+                                <React.Fragment key={medication.id}>
+                                  {logs.map((log) => (
+                                    <tr
+                                      key={log.id}
+                                      className="border-t border-gray-300 text-center"
+                                    >
+                                      <td className="p-3">
+                                        {capitalizeFirstLetter(medication.name)}
+                                      </td>
+                                      <td className="p-3">
+                                        {
+                                          splitDateTime(log.dateTaken)
+                                            .formattedDate
+                                        }
+                                      </td>
+                                      <td className="p-3">
+                                        {
+                                          splitDateTime(log.dateTaken)
+                                            .formattedTime
+                                        }
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </React.Fragment>
                               );
                             })}
                           </tbody>
