@@ -212,13 +212,13 @@ export default function Account({ defaultValues }: AccountProps) {
     <div className="bg-gray-dark">
       {status === "authenticated" && (
         <section className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-20 sm:py-24 lg:py-24 animate-fade-in-up min-h-screen flex flex-col items-center justify-center">
-          <p className="text-xl font-semibold">
+          <p className="text-xl font-semibold text-white">
             {data.phone
               ? `Welcome back, ${session?.user?.name}!`
               : `Welcome, ${session?.user?.name}!`}
           </p>
           {!data.phone && (
-            <p className="text-md">
+            <p className="text-md text-white">
               By providing your phone number, you will be able to start
               receiving text reminders!
             </p>
@@ -390,8 +390,10 @@ export default function Account({ defaultValues }: AccountProps) {
                           </tbody>
                         </table>
                       ) : (
-                        <div>
-                          <p className="mt-4">No medication schedules found.</p>
+                        <div className="text-white">
+                          <p className="mt-4 ">
+                            No medication schedules found.
+                          </p>
                           <p className="mt-4">
                             Head to the{" "}
                             <Link
@@ -476,7 +478,7 @@ export default function Account({ defaultValues }: AccountProps) {
                           </tbody>
                         </table>
                       ) : (
-                        <div>
+                        <div className="text-white">
                           <p className="mt-4">No medication logs found.</p>
                           <p className="mt-4">
                             Head to the{" "}

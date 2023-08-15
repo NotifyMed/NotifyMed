@@ -149,7 +149,7 @@ export const LogMedicationForm = ({
       )}
 
       <form onSubmit={handleSubmit(handleLogMedication)}>
-        <div className="flex flex-col space-y-5">
+        <div className="flex flex-col space-y-5 text-white">
           <label htmlFor="Medication">
             Medication:
             <Combobox

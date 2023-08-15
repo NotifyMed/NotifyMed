@@ -25,7 +25,7 @@ function MedicationSchedule() {
   };
 
   return (
-    <>
+    <div className="bg-gray-dark">
       <Head>
         <title>Medication Schedule | NotifyMed</title>
         <link rel="apple-touch-icon" href="/path/to/apple-touch-icon.png" />
@@ -51,7 +51,7 @@ function MedicationSchedule() {
           </div>
         </section>
       )}
-    </>
+    </div>
   );
 }
 

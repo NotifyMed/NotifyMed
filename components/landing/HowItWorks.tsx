@@ -112,13 +112,13 @@ function HowItWorks() {
 
   return (
     <div>
-      <p className="text-2xl text-bold sm:text-4xl text-center mb-10">
+      <p className="text-2xl text-bold sm:text-4xl text-center mb-10 text-white">
         How It Works
       </p>
       {steps.map((step) => (
         <div key={step.number}>
           <div
-            className={`flex flex-col md:flex-row mx-5 justify-center items-center ${
+            className={`flex flex-col md:flex-row mx-5 justify-center items-center text-white ${
               step.number % 2 !== 0 && "md:flex-row-reverse"
             }`}
           >

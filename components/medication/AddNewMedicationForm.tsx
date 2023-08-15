@@ -90,7 +90,7 @@ const AddNewMedicationForm = ({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="flex flex-col space-y-2">
+      <div className="flex flex-col space-y-2 text-white">
         <label htmlFor="Name">Name</label>
         <input
           type="text"
