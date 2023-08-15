@@ -65,6 +65,7 @@ export const LogMedicationForm = ({
     formState: { errors },
     reset,
   } = useForm<LoggedMedication>({
+    //@ts-ignore
     resolver: yupResolver(schema),
     defaultValues,
   });
