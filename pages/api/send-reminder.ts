@@ -4,6 +4,18 @@ import knex from "@/src/knex/knex";
 import { getSession } from "next-auth/react";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
 
+interface Schedule {
+  id: number;
+  medication_id: number;
+  logWindowStart: string;
+  logWindowEnd: string;
+}
+
+interface User {
+  name: string;
+  phone: string;
+}
+
 export default async function sendReminder(
   req: NextApiRequest,
   res: NextApiResponse
@@ -47,15 +59,27 @@ export default async function sendReminder(
         .select("name", "phone")
         .first();
 
-      await client.messages.create({
-        body: `Hi ${
-          user.name
-        }, we've seen that you haven't taken your ${capitalizeFirstLetter(
-          medication.name
-        )} yet. This is a text reminder from Notify Med.`,
-        from: process.env.TWILIO_PHONE_NUMBER,
-        to: user.phone,
-      });
+      // Check if a reminder needs to be sent
+      const lastMedicationLog = await knex("medicationLog")
+        .where({
+          user_id: userId,
+          medication_id: schedule.medication_id,
+        })
+        .orderBy("dateTaken", "desc")
+        .first();
+
+      if (!lastMedicationLog || !lastMedicationLog.dateTaken) {
+        await sendReminderMessage(schedule, user);
+      } else {
+        const nextReminderTime = new Date(lastMedicationLog.dateTaken);
+        nextReminderTime.setHours(
+          nextReminderTime.getHours() + schedule.logFrequency
+        );
+
+        if (nextReminderTime <= currentTime) {
+          await sendReminderMessage(schedule, user);
+        }
+      }
     }
 
     res.json({
@@ -71,11 +95,32 @@ export default async function sendReminder(
   }
 }
 
-function parseTimeString(timeString: any) {
+async function sendReminderMessage(schedule: Schedule, user: User) {
+  const medication = await knex("medications")
+    .where("id", schedule.medication_id)
+    .first();
+
+  await client.messages.create({
+    body: `Hi ${
+      user.name
+    }, we've seen that you haven't taken your ${capitalizeFirstLetter(
+      medication.name
+    )} yet. This is a text reminder from Notify Med.`,
+    from: process.env.TWILIO_PHONE_NUMBER,
+    to: user.phone,
+  });
+
+  // Update the last reminder sent time for the schedule
+  await knex("medicationschedule").where("id", schedule.id).update({
+    lastReminderSent: new Date().toISOString(),
+  });
+}
+
+function parseTimeString(timeString: string) {
   const [hours, minutes, seconds] = timeString.split(":");
   const currentTime = new Date();
-  currentTime.setHours(hours);
-  currentTime.setMinutes(minutes);
-  currentTime.setSeconds(seconds);
+  currentTime.setHours(Number(hours));
+  currentTime.setMinutes(Number(minutes));
+  currentTime.setSeconds(Number(seconds));
   return currentTime;
 }
