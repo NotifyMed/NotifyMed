@@ -25,6 +25,7 @@ const AddNewMedicationForm = ({
     handleSubmit,
     formState: { errors },
   } = useForm({
+    //@ts-ignore
     resolver: yupResolver(schema),
     defaultValues:
       process.env.NODE_ENV === "development"
