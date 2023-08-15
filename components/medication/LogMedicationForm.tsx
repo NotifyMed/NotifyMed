@@ -52,7 +52,6 @@ export const LogMedicationForm = ({
     try {
       const response = await axios.get("/api/medication");
       const data = response.data;
-      console.log(data);
       setAvailableMedication(data);
     } catch (error) {
       console.error(error);
@@ -72,7 +71,6 @@ export const LogMedicationForm = ({
 
   const handleLogMedication = async (data: LoggedMedication) => {
     const dateTaken = setTime(data.dateTaken, data.timeTaken);
-    console.log(dateTaken);
 
     try {
       const medicationId = selectedMedication?.id;
@@ -96,7 +94,6 @@ export const LogMedicationForm = ({
       });
 
       logMedication(res.data);
-      console.log(res.data);
     } catch (error) {
       console.error(error);
     }

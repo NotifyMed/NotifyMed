@@ -82,10 +82,7 @@ async function updateMedication(req: NextApiRequest, res: NextApiResponse) {
 }
 
 async function addMedicationLog(req: NextApiRequest, res: NextApiResponse) {
-  console.log(req.body);
   const session = await getServerSession(req, res, authOptions);
-  console.log(session);
-
   try {
     let knexResponse = await knex("medicationLog")
       .insert({
@@ -129,8 +126,6 @@ async function addMedicationSchedule(
         logFrequency: logFrequency,
       })
       .returning("*");
-
-    console.log(res);
     return res.status(200).json({
       medication: medicationResponse[0],
       schedule: scheduleResponse[0],
@@ -199,8 +194,6 @@ async function getMedicationSchedule(
         qb.where("medications.isDeleted", false);
         qb.where("medications.user_id", userId);
       });
-    console.log(knexResponse);
-
     return res.status(200).json(knexResponse);
   } catch (e) {
     return res.status(400).json({ error: e });
