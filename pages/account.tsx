@@ -119,7 +119,7 @@ export default function Account({ defaultValues }: AccountProps) {
         (schedule) => schedule.id === medication.id
       );
       return {
-        Patient: session?.user?.name,
+        Name: session?.user?.name,
         Medication: capitalizeFirstLetter(medication.name),
         Dose: `${medication.dose}${medication.doseUnit}`,
         "Log Window (Start)":
@@ -148,7 +148,7 @@ export default function Account({ defaultValues }: AccountProps) {
     const csvData = userMedications.map((medication) => {
       const logs = medicationLogs.find((log) => log.id === medication.id);
       return {
-        Patient: session?.user?.name,
+        Name: session?.user?.name,
         Medication: capitalizeFirstLetter(medication.name),
         "Date Taken": logs ? splitDateTime(logs.dateTaken).formattedDate : "",
         "Time Taken": logs ? splitDateTime(logs.dateTaken).formattedTime : "",
