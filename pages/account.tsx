@@ -250,7 +250,7 @@ export default function Account({ defaultValues }: AccountProps) {
               <div className="relative mr-2" ref={optionsMenuRef}>
                 <button
                   onClick={() => setShowOptionsMenu(!showOptionsMenu)}
-                  className="p-2 hover:border-teal-500 relative"
+                  className="p-2 hover:border-teal-500 relative text-white"
                 >
                   <span className="absolute inset-0 border-2 border-transparent hover:border-teal-500"></span>
                   &#8943;
