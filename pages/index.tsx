@@ -49,18 +49,18 @@ export default function Home() {
       />
       <section className="max-w-7xl mx-auto mt-5 px-5 sm:px-6 lg:px-8 py-20 sm:py-24 lg:py-24 font-roboto min-h-screen ">
         <div className="text-center">
-          <h1 className="text-5xl font-bold">
+          <h1 className="text-5xl font-bold text-white">
             Welcome to Notify Med {""}
             <span role="img" aria-label="Waving hand emoji">
               👋
             </span>
           </h1>
         </div>
-        <p className="mt-5 text-lg text-center">
+        <p className="mt-5 text-lg text-center text-white">
           Disclaimer: This application is not intended to be used as medical
           advice. We are simply a medication tracker and reminder.
         </p>
-        <div className="text-2xl text-left mt-5">
+        <div className="text-2xl text-left mt-5 text-white">
           <span className="sm:[&>div]:inline">
             <Typewriter
               onInit={(typewriter) => {
@@ -105,19 +105,17 @@ export default function Home() {
           </button>
         </div>
 
-        <div id="how-it-works">
+        <div id="how-it-works ">
           <HowItWorks />
         </div>
 
         <div className="flex flex-col justify-center items-center mt-10">
           <div className="w-full max-w-sm  shadow bg-gray-dark">
-            <h2 className="mb-3 text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+            <h2 className="mb-3 text-3xl font-extrabold tracking-tight text-white ">
               On time, every time.
             </h2>
 
-            <p className="mb-3 text-gray-500 dark:text-gray-400">
-              Never miss a medication again.
-            </p>
+            <p className="mb-3 text-gray-500">Never miss a medication again.</p>
             <Link
               href="/login"
               className="text-white bg-teal-600 hover:bg-teal-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
