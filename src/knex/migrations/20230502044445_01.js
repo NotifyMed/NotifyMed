@@ -37,6 +37,7 @@
        table.time("logWindowStart").notNullable();
        table.time("logWindowEnd").notNullable();
        table.integer("logFrequency");
+       table.timestamp("lastReminderSent");
      }),
    ]);
  };
