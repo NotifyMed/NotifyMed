@@ -78,8 +78,6 @@ export default function Account({ defaultValues }: AccountProps) {
     }
   };
 
-  console.log(session);
-
   const {
     handleSubmit,
     formState: { errors },
@@ -97,9 +95,7 @@ export default function Account({ defaultValues }: AccountProps) {
     try {
       const res = await axios.patch("/api/user", userInfo);
       if (res.status === 200) {
-        console.log("Phone number saved successfully:", res.data);
       }
-      console.log(userInfo.phone);
     } catch (error) {
       console.error("Error saving phone number:", error);
     }

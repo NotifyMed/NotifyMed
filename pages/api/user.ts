@@ -53,7 +53,6 @@ async function getUser(req: NextApiRequest, res: NextApiResponse) {
 }
 
 async function updateUser(req: NextApiRequest, res: NextApiResponse) {
-  console.log(req.body.phone);
   try {
     await knex("users")
       .where({ email: req.body.email })

@@ -24,7 +24,6 @@ export const authOptions: NextAuthOptions = {
           })
           .first();
         if (foundUser) {
-          console.log("User already exists in database");
           return true;
           // Create a new user and store into database
         } else {
@@ -33,9 +32,6 @@ export const authOptions: NextAuthOptions = {
             name: user.name,
             image: user.image,
           });
-
-          console.log("addedUserToDatabase");
-          // console.log(createUser);
         }
       }
 
@@ -56,15 +52,12 @@ export const authOptions: NextAuthOptions = {
           token.userId = res.id;
         }
       }
-      // console.log(token);
       return token;
     },
     async session({ session, token }) {
-      // console.log(token);
       if (session.user) {
         session.user.userId = token.userId as number | null | undefined;
       }
-      // console.log(session);
       return session;
     },
   },

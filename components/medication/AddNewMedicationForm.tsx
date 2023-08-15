@@ -73,7 +73,6 @@ const AddNewMedicationForm = ({
       });
 
       if (res.status === 200) {
-        console.log(res);
         handleAddNewMedication({
           ...newMedication,
           ...medicationSchedule,
