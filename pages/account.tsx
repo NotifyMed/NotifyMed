@@ -220,7 +220,7 @@ export default function Account({ defaultValues }: AccountProps) {
           {!data.phone && (
             <p className="text-md">
               By providing your phone number, you will be able to start
-              receiving text reminders.
+              receiving text reminders!
             </p>
           )}
           <div className="mt-4">
