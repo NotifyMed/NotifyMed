@@ -86,7 +86,7 @@ export default function Home() {
           </span>
         </div>
         <ScrollTextAnimation />
-        <div id="pricing" className="text-center my-10">
+        <div id="pricing" className="text-center my-10 text-white">
           <div className="text-2xl sm:text-4xl text-bold mt-4 ">Pricing</div>
           <div className="text-lg sm:text-xl mt-4">
             Just kidding, Notify Med is completely free.
@@ -94,7 +94,7 @@ export default function Home() {
           <div className="text-lg sm:text-xl leading-2">Let us help!</div>
         </div>
         <div
-          className="flex items-center justify-center mb-10"
+          className="flex items-center justify-center mb-10 text-white"
           ref={howItWorksRef}
         >
           <button
@@ -105,7 +105,7 @@ export default function Home() {
           </button>
         </div>
 
-        <div id="how-it-works ">
+        <div id="how-it-works">
           <HowItWorks />
         </div>
 
