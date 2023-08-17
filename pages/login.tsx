@@ -37,14 +37,14 @@ export const getServerSideProps = async (
   const session = await getSession(context);
   const { query } = context;
 
-  // if (session) {
-  //   const destination = query.previous ? `/${query.previous}` : "/account";
-  //   return {
-  //     redirect: {
-  //       destination,
-  //     },
-  //   };
-  // }
+  if (session) {
+    const destination = query.previous ? `/${query.previous}` : "/account";
+    return {
+      redirect: {
+        destination,
+      },
+    };
+  }
 
   return {
     props: {
