@@ -4,6 +4,7 @@ import useSWR, { mutate } from "swr";
 import Head from "next/head";
 import { LogMedicationForm } from "../components/medication/LogMedicationForm";
 import MedicationCalendar from "@/components/calendar/MedicationCalendar";
+import { NextSeo } from "next-seo";
 
 const fetcher = async (url: string, ...args: any[]) => {
   const response = await fetch(url, ...args);
@@ -26,14 +27,41 @@ function MedicationSchedule() {
 
   return (
     <div className="bg-gray-dark">
-      <Head>
-        <title>Medication Schedule | NotifyMed</title>
-        <link rel="apple-touch-icon" href="/path/to/apple-touch-icon.png" />
-        <meta name="theme-color" content="#30527D" />
-        <meta name="description" content="medication schedule at NotifyMed" />
-        <meta name="keywords" content="medication schedule, notifymed" />
-        <meta name="viewport" content="width=device-width" />
-      </Head>
+      <NextSeo
+        title="Medication Schedule | Notify Med"
+        description="Medication Schedule for Notify Med"
+        canonical="https://notifymed.com/schedule"
+        openGraph={{
+          url: "https://notifymed.com/schedule",
+          title: "Medication Schedule | Notify Med",
+          description: "Medication Schedule for Notify Med",
+          site_name: "Notify Med",
+          type: "website",
+          locale: "en_US",
+        }}
+        additionalMetaTags={[
+          {
+            name: "keywords",
+            content: "medication, reminder, tracker,",
+          },
+          {
+            name: "author",
+            content: "Notify Med",
+          },
+          {
+            property: "og:type",
+            content: "website",
+          },
+          {
+            property: "og:locale",
+            content: "en_US",
+          },
+          {
+            property: "og:site_name",
+            content: "Notify Med",
+          },
+        ]}
+      />
       {status === "authenticated" && (
         <section
           id="medication-schedule"
