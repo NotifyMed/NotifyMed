@@ -10,8 +10,8 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const session = await getServerSession(req, res, authOptions);
-  if (!session) return res.status(403).json({ error: "Permission denied" });
+  // const session = await getServerSession(req, res, authOptions);
+  // if (!session) return res.status(403).json({ error: "Permission denied" });
   switch (req.method) {
     case "PUT":
       return handlePutMedication(req, res);
