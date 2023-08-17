@@ -62,13 +62,13 @@ export const getServerSideProps = async (
 ) => {
   const session = await getSession(context);
 
-  if (!session) {
-    return {
-      redirect: {
-        destination: "/login?previous=schedule",
-      },
-    };
-  }
+  // if (!session) {
+  //   return {
+  //     redirect: {
+  //       destination: "/login?previous=schedule",
+  //     },
+  //   };
+  // }
   return {
     props: {
       session,
