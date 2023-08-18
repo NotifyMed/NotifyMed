@@ -62,7 +62,7 @@ function MedicationSchedule() {
           },
         ]}
       />
-      {status === "authenticated" && (
+      {session && (
         <section
           id="medication-schedule"
           className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-20 sm:py-24 lg:py-24 animate-fade-in-up min-h-screen"
@@ -89,13 +89,13 @@ export const getServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
   const session = await getSession(context);
-  if (!session) {
-    return {
-      redirect: {
-        destination: "/login?previous=schedule",
-      },
-    };
-  }
+  // if (!session) {
+  //   return {
+  //     redirect: {
+  //       destination: "/login?previous=schedule",
+  //     },
+  //   };
+  // }
   return {
     props: {
       session,
