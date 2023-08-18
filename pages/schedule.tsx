@@ -12,7 +12,7 @@ const fetcher = async (url: string, ...args: any[]) => {
 };
 
 function MedicationSchedule() {
-  const { data: session, status } = useSession({ required: true });
+  // const { data: session, status } = useSession({ required: true });
   const { data: medicationLogs, error: logError } = useSWR(
     "/api/medication?action=GET_MEDICATION_LOG",
     fetcher
@@ -62,23 +62,22 @@ function MedicationSchedule() {
           },
         ]}
       />
-      {session && (
-        <section
-          id="medication-schedule"
-          className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-20 sm:py-24 lg:py-24 animate-fade-in-up min-h-screen"
-        >
-          <div className="flex flex-col md:flex-row space-x-4 ">
-            <div className="w-full md:w-5/12">
-              <LogMedicationForm logMedication={handleLogMedication} />
-            </div>
-            <div className="w-full md:w-7/12">
-              {medicationLogs && !logError && (
-                <MedicationCalendar medications={medicationLogs} />
-              )}
-            </div>
+
+      <section
+        id="medication-schedule"
+        className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-20 sm:py-24 lg:py-24 animate-fade-in-up min-h-screen"
+      >
+        <div className="flex flex-col md:flex-row space-x-4 ">
+          <div className="w-full md:w-5/12">
+            <LogMedicationForm logMedication={handleLogMedication} />
           </div>
-        </section>
-      )}
+          <div className="w-full md:w-7/12">
+            {medicationLogs && !logError && (
+              <MedicationCalendar medications={medicationLogs} />
+            )}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
