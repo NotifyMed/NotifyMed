@@ -139,9 +139,9 @@ async function addMedicationSchedule(
 async function getMedicationLog(req: NextApiRequest, res: NextApiResponse) {
   try {
     const session = await getSession({ req });
-    if (!session) {
-      return res.status(403).json({ error: "Permission denied" });
-    }
+    // if (!session) {
+    //   return res.status(403).json({ error: "Permission denied" });
+    // }
 
     const userId = session?.user?.userId;
 
@@ -166,9 +166,9 @@ async function getMedicationSchedule(
 ) {
   try {
     const session = await getSession({ req });
-    if (!session) {
-      return res.status(403).json({ error: "Permission denied" });
-    }
+    // if (!session) {
+    //   return res.status(403).json({ error: "Permission denied" });
+    // }
 
     const userId = session?.user?.userId;
 
@@ -201,9 +201,9 @@ async function getMedicationSchedule(
 }
 async function getMedication(req: NextApiRequest, res: NextApiResponse) {
   const session = await getSession({ req });
-  if (!session) {
-    return res.status(403).json({ error: "Permission denied" });
-  }
+  // if (!session) {
+  //   return res.status(403).json({ error: "Permission denied" });
+  // }
 
   const userId = session?.user?.userId;
 
