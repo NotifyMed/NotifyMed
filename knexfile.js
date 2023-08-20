@@ -18,3 +18,10 @@ module.exports = {
     },
   },
 };
+
+console.log("Database:", process.env.NEXT_DATABASE);
+console.log("User:", process.env.NEXT_USER);
+console.log("Password:", process.env.NEXT_PASSWORD);
+console.log("Host:", process.env.NEXT_HOST);
+console.log("Port:", process.env.NEXT_PORT); 
+
