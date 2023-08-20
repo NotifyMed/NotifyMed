@@ -21,7 +21,7 @@ export default function App({
   }, []);
 
   return (
-    <SessionProvider session={session} refetchInterval={5 * 60}>
+    <SessionProvider session={session}>
       <DefaultSeo
         title="Notify Med - Medication Tracker and Reminder"
         description="Never forget to take your medication again!"
