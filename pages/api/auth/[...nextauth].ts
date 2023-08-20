@@ -9,12 +9,13 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
     }),
   ],
-  secret: process.env.NEXTAUTH_SECRET,
+  // secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt",
     maxAge: 60 * 60 * 24,
+    updateAge: 24 * 60 * 60,
   },
-  // secret: process.env.JWT_SECRET,
+  secret: process.env.JWT_SECRET,
   callbacks: {
     async signIn({ user }) {
       // If user does not exist, create a new user and store into database
