@@ -1,7 +1,16 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import { getServerSession } from "next-auth";
+
+import { authOptions } from "./auth/[...nextauth]";
+import { getSession } from "next-auth/react";
 import knex from "@/src/knex/knex";
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  const session = await getServerSession(req, res, authOptions);
+  if (!session) return res.status(403).json({ error: "Permission denied" });
   switch (req.method) {
     case "PUT":
       addUser(req, res);
@@ -22,6 +31,10 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 }
 
 async function addUser(req: NextApiRequest, res: NextApiResponse) {
+  const session = await getSession({ req });
+  if (!session) {
+    return res.status(403).json({ error: "Permission denied" });
+  }
   try {
     let knexResponse = await knex("users")
       .insert({
@@ -37,6 +50,10 @@ async function addUser(req: NextApiRequest, res: NextApiResponse) {
 }
 
 async function getUser(req: NextApiRequest, res: NextApiResponse) {
+  const session = await getSession({ req });
+  if (!session) {
+    return res.status(403).json({ error: "Permission denied" });
+  }
   try {
     let email = req.query.email;
     let knexResponse = await knex("users")
@@ -53,6 +70,10 @@ async function getUser(req: NextApiRequest, res: NextApiResponse) {
 }
 
 async function updateUser(req: NextApiRequest, res: NextApiResponse) {
+  const session = await getSession({ req });
+  if (!session) {
+    return res.status(403).json({ error: "Permission denied" });
+  }
   try {
     await knex("users")
       .where({ email: req.body.email })
@@ -68,6 +89,10 @@ async function updateUser(req: NextApiRequest, res: NextApiResponse) {
 }
 
 async function deleteUser(req: NextApiRequest, res: NextApiResponse) {
+  const session = await getSession({ req });
+  if (!session) {
+    return res.status(403).json({ error: "Permission denied" });
+  }
   try {
     let knexResponse = await knex("users")
       .where({ email: req.query.email })
