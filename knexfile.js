@@ -7,6 +7,8 @@ module.exports = {
       database: process.env.NEXT_DATABASE,
       user: process.env.NEXT_USER,
       password: process.env.NEXT_PASSWORD,
+      host: process.env.NEXT_HOST,
+      port: parseInt(process.env.NEXT_PORT),
     },
     pool: {
       min: 2,
