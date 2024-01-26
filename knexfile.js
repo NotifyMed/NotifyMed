@@ -7,6 +7,7 @@ module.exports = {
       database: "notifymed",
       user: "postgres",
       password: "postgres",
+      port: 5433,
     },
     pool: {
       min: 2,
