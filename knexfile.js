@@ -18,6 +18,5 @@ module.exports = {
       directory: "./src/knex/migrations",
       tableName: "knex_migrations",
     },
-    ssl: config["DB_SSL"] ? { rejectUnauthorized: false } : false,
   },
 };
