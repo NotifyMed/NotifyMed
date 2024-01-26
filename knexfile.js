@@ -4,10 +4,11 @@ module.exports = {
   development: {
     client: "pg",
     connection: {
+      host: "137.184.122.12",
+      port: 5432,
       database: "notifymed",
       user: "postgres",
       password: "postgres",
-      port: 5432,
     },
     pool: {
       min: 2,
@@ -17,5 +18,6 @@ module.exports = {
       directory: "./src/knex/migrations",
       tableName: "knex_migrations",
     },
+    ssl: config["DB_SSL"] ? { rejectUnauthorized: false } : false,
   },
 };
