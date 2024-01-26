@@ -12,7 +12,7 @@ const fetcher = async (url: string, ...args: any[]) => {
 };
 
 function MedicationSchedule() {
-  // const { data: session, status } = useSession({ required: true });
+  const { data: session, status } = useSession({ required: true });
   const { data: medicationLogs, error: logError } = useSWR(
     "/api/medication?action=GET_MEDICATION_LOG",
     fetcher
@@ -88,13 +88,13 @@ export const getServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
   const session = await getSession(context);
-  // if (!session) {
-  //   return {
-  //     redirect: {
-  //       destination: "/login?previous=schedule",
-  //     },
-  //   };
-  // }
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/login?previous=schedule",
+      },
+    };
+  }
   return {
     props: {
       session,

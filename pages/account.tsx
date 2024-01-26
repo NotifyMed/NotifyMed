@@ -24,7 +24,7 @@ interface AccountProps {
   defaultValues?: Profile;
 }
 
-function classNames(...classes: any) {
+function classNames(...classes: (string | boolean)[]): string {
   return classes.filter(Boolean).join(" ");
 }
 
@@ -522,13 +522,13 @@ export const getServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
   const session = await getSession(context);
-  // if (!session) {
-  //   return {
-  //     redirect: {
-  //       destination: "/login",
-  //     },
-  //   };
-  // }
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/login",
+      },
+    };
+  }
   return {
     props: {
       session,
