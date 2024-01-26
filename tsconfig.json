@@ -18,6 +18,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "knexfile.js", "knexfile.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "knexfile.js"],
   "exclude": ["node_modules"]
 }
