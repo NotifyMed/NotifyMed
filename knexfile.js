@@ -9,6 +9,7 @@ module.exports = {
       password: "postgres",
       host: "137.184.122.12",
       port: 5432,
+      ssl: true,
     },
     pool: {
       min: 2,
