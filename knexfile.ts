@@ -1,6 +1,8 @@
-require("dotenv").config();
+import type { Knex } from "knex";
+const { loadEnvConfig } = require("@next/env");
+loadEnvConfig(".");
 
-module.exports = {
+const config: { [key: string]: Knex.Config } = {
   development: {
     client: "pg",
     connection: {
@@ -21,3 +23,5 @@ module.exports = {
     },
   },
 };
+
+module.exports = config;
