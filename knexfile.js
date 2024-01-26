@@ -2,11 +2,11 @@ require("dotenv").config();
 
 module.exports = {
   development: {
-    client: "postgresql",
+    client: "pg",
     connection: {
-      database: process.env.NEXT_DATABASE,
-      user: process.env.NEXT_USER,
-      password: process.env.NEXT_PASSWORD,
+      database: "notifymed",
+      user: "postgres",
+      password: "postgres",
     },
     pool: {
       min: 2,
