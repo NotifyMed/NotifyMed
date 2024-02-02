@@ -1,7 +1,6 @@
 import Head from "next/head";
-import Footer from "../global/Footer";
-
 import Navbar from "../global/Navbar";
+import Footer from "../global/Footer";
 
 type LayoutProps = {
   children: React.ReactNode;
